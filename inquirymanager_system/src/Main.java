@@ -27,8 +27,14 @@ public class Main {
         //handling4.run();
 
         InquiryManager inquiryManager = new InquiryManager();
+        InquiryManager inquiryManager1 = new InquiryManager();
+        InquiryManager inquiryManager2 = new InquiryManager();
         inquiryManager.inquiryCreation();
+        inquiryManager1.inquiryCreation();
+        inquiryManager2.inquiryCreation();
         inquiryManager.processInquiryManager();
+        inquiryManager1.processInquiryManager();
+        inquiryManager2.processInquiryManager();
 
 
 

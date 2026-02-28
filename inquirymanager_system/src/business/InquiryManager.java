@@ -48,8 +48,15 @@ public class InquiryManager {
             Inquiry inquiry = inquiryQueue.poll();
 
             InquiryHandling inquiryHandling = new InquiryHandling(inquiry);
-
             inquiryHandling.start();
+
+            try {
+                inquiryHandling.join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+
 
         }
     }
