@@ -25,7 +25,8 @@ public class HandleFiles{
     }
 
 
-    public void deleteFile(ForSaving forSaving){
+    public void deleteFile(ForSaving forSaving)
+    {
         File file=new File(forSaving.getFolderName(),forSaving.getFileName());
         if(file.exists())
         {
@@ -39,8 +40,10 @@ public class HandleFiles{
         saveFile(forSaving);
     }
 
-    public void saveFiles(List<ForSaving> forSavingList){
-
+    public void saveFiles(List<ForSaving> forSavingList)
+    {
+        for(int i=0;i<forSavingList.size();i++)
+            saveFile(forSavingList.get(i));
     }
 
 }
