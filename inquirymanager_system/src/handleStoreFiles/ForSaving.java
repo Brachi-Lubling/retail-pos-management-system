@@ -1,2 +1,7 @@
-package handleStoreFiles;public interface ForSaving {
+package handleStoreFiles;
+
+public interface ForSaving {
+    String getFolderName();
+    String getFileName();
+    String getData();
 }
