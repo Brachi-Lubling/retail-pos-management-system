@@ -11,32 +11,7 @@ public class InquiryHandling extends Thread {
         this.currentInquiry = inquiry;
     }
 
-//    public void createInquiry(){
-//        int x;
-//        Scanner sc = new Scanner(System.in);
-//        System.out.println(" Please press the appropriate key.");
-//        System.out.println("1-question 2-request 3-complain");
-//        x = sc.nextInt();
-//        switch (x)
-//        {
-//            case 1:
-//                currentInquiry=new Question();
-//                this.setPriority(Thread.MIN_PRIORITY);
-//                break;
-//            case 2:
-//                currentInquiry=new Request();
-//                this.setPriority(Thread.MAX_PRIORITY);
-//                break;
-//            case 3:
-//                currentInquiry=new Complaint();
-//                this.setPriority(Thread.MAX_PRIORITY);
-//                break;
-//            default:
-//                System.out.println("Inactive key, please press again.");
-//                return;
-//        }
 
-//        currentInquiry.fillDataByUser();}
 
     @Deprecated
     public void createInquiry() {
