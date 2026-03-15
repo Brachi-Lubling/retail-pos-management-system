@@ -5,6 +5,7 @@ import Data.Inquiry;
 import Data.Question;
 import Data.Request;
 import business.InquiryHandling;
+import handleStoreFiles.HandleFiles;
 
 import java.util.LinkedList;
 import java.util.Queue;
@@ -14,6 +15,7 @@ public class InquiryManager {
 
     private Queue<Inquiry> inquiryQueue = new LinkedList<Inquiry>();
     private Inquiry currentInquiry;
+    private HandleFiles handleFiles = new HandleFiles();
 
 
     public void inquiryCreation( ) {
@@ -38,6 +40,7 @@ public class InquiryManager {
         }
         currentInquiry.fillDataByUser();
         inquiryQueue.add(currentInquiry);
+        handleFiles.saveFile(currentInquiry);
 
     }
 

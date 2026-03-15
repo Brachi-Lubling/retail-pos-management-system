@@ -1,12 +1,16 @@
 package Data;
 
+import handleStoreFiles.ForSaving;
+
+import java.time.format.DateTimeFormatter;
 import java.util.Scanner;
+
 
 public class Complaint extends Inquiry
 {
     private String assignedBranch;
 
-    @Override
+
     public void fillDataByUser() {
         super.fillDataByUser();
         System.out.println("Enter assignedBranch for inquiry: ");
@@ -19,5 +23,4 @@ public class Complaint extends Inquiry
     public void handling(){
         System.out.println("The system handle in your com[lain the code is: "+code);
     }
-
 }
