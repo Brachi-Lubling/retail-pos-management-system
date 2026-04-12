@@ -39,6 +39,11 @@ public class Main {
         inquiryManager2.processInquiryManager();
 
 
+        InquiryManager manager = new InquiryManager();
+
+        manager.defineRepresentative();
+
+
 
 
 

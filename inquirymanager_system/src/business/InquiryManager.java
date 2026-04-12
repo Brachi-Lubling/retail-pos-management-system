@@ -4,26 +4,97 @@ import Data.Complaint;
 import Data.Inquiry;
 import Data.Question;
 import Data.Request;
-import business.InquiryHandling;
-import handleStoreFiles.HandleFiles;
+import Data.Representative;
 
+import handleStoreFiles.HandleFiles;
+import handleStoreFiles.HandleFilesReflection;
+
+import java.io.File;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Scanner;
 
 public class InquiryManager {
 
-    private Queue<Inquiry> inquiryQueue = new LinkedList<Inquiry>();
+    private ArrayList<Representative> representatives;
+    private Queue<Inquiry> inquiryQueue = new LinkedList<>();
     private Inquiry currentInquiry;
     private HandleFiles handleFiles = new HandleFiles();
 
+    private Scanner scanner = new Scanner(System.in);
 
-    public void inquiryCreation( ) {
-        int x;
-        Scanner sc = new Scanner(System.in);
-        System.out.println(" Please press the appropriate key.");
+    public InquiryManager() {
+        representatives = new ArrayList<>();
+    }
+
+    public void defineRepresentative() {
+
+        HandleFilesReflection fileHandler = new HandleFilesReflection();
+
+        while (true) {
+
+            System.out.println("Enter representative name or exit:");
+            String name = scanner.nextLine();
+
+            if (name.equalsIgnoreCase("exit")) {
+                break;
+            }
+
+            System.out.println("Enter ID:");
+            String id = scanner.nextLine();
+
+            Representative rep = new Representative(name, id);
+
+            representatives.add(rep);
+
+            String folderPath = "Representative";
+            new File(folderPath).mkdirs();
+
+            String filePath = folderPath + "/" + rep.getEmployeeCode() + ".csv";
+
+            fileHandler.saveCSV(rep, filePath);
+
+            System.out.println("Saved: " + rep);
+        }
+    }
+
+    public void loadRepresentatives() {
+
+        HandleFilesReflection fileHandler = new HandleFilesReflection();
+
+        File folder = new File("Representative");
+
+        if (!folder.exists()) {
+            return;
+        }
+
+        File[] files = folder.listFiles();
+
+        if (files == null) {
+            return;
+        }
+
+        for (File file : files) {
+
+            if (file.getName().endsWith(".csv")) {
+
+                Representative rep =
+                        (Representative) fileHandler.readCsv(file.getPath());
+
+                representatives.add(rep);
+            }
+        }
+    }
+
+    public void inquiryCreation() {
+
+        System.out.println("Please press the appropriate key.");
         System.out.println("1-question 2-request 3-complain");
-        x = sc.nextInt();
+
+        int x = scanner.nextInt();
+        scanner.nextLine(); // ניקוי buffer
+
         switch (x) {
             case 1:
                 currentInquiry = new Question();
@@ -38,10 +109,12 @@ public class InquiryManager {
                 System.out.println("Inactive key, please press again.");
                 return;
         }
-        currentInquiry.fillDataByUser();
-        inquiryQueue.add(currentInquiry);
-        handleFiles.saveFile(currentInquiry);
 
+        currentInquiry.fillDataByUser();
+
+        inquiryQueue.add(currentInquiry);
+
+        handleFiles.saveFile(currentInquiry);
     }
 
     public void processInquiryManager() {
@@ -58,14 +131,6 @@ public class InquiryManager {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-
-
-
         }
     }
-
 }
-
-
-
-
