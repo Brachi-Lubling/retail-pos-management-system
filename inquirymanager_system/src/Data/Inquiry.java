@@ -16,10 +16,23 @@ public class Inquiry implements ForSaving {
     public  void fillDataByUser()
     {
         Scanner sc=new Scanner(System.in);
-        this.code=nextCodeVal++;
+
         System.out.println("Enter description for inquiry: ");
         this.description=sc.nextLine();
         this.creationDate= LocalDateTime.now();
+    }
+
+
+    public static int getNextCodeVal() {
+        return nextCodeVal;
+    }
+
+    public static void incrementNextCodeVal() {
+        nextCodeVal++;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 
     public void handling()
@@ -43,6 +56,11 @@ public class Inquiry implements ForSaving {
     public String getData() {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         return code+","+description+","+creationDate.format(formatter);
+    }
+
+    @Override
+    public String getId() {
+        return "";
     }
 
 }

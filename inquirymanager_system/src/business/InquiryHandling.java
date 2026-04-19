@@ -1,7 +1,11 @@
 package business;
 
+import Data.Complaint;
 import Data.Inquiry;
 import Data.Question;
+import Data.Request;
+
+import java.util.Scanner;
 
 
 public class InquiryHandling extends Thread {
@@ -12,10 +16,13 @@ public class InquiryHandling extends Thread {
     }
 
 
+//        currentInquiry.fillDataByUser();}
 
     @Deprecated
-    public void createInquiry() {
-    }
+    public void createInquiry(){
+
+}
+
 
 
     @Override

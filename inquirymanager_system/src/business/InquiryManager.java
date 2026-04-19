@@ -112,9 +112,20 @@ public class InquiryManager {
 
         currentInquiry.fillDataByUser();
 
-        inquiryQueue.add(currentInquiry);
+        currentInquiry.setCode(Inquiry.getNextCodeVal());
+//begore change
+        //inquiryQueue.add(currentInquiry);
+       // handleFiles.saveFile(currentInquiry);
 
-        handleFiles.saveFile(currentInquiry);
+
+       // כאן השתנה
+        boolean saved = handleFiles.saveFile(currentInquiry);
+        if (saved) {
+            Inquiry.incrementNextCodeVal();
+            inquiryQueue.add(currentInquiry);
+        } else {
+            System.out.println("Save failed, inquiry not created.");
+        }
     }
 
     public void processInquiryManager() {

@@ -7,7 +7,7 @@ import java.io.*;
 import java.util.List;
 
 public class HandleFiles{
-    public void saveFile(ForSaving forSaving)
+    public boolean saveFile(ForSaving forSaving)
     {
         File folder = new File(forSaving.getFolderName());
         if(!folder.exists()){
@@ -17,9 +17,11 @@ public class HandleFiles{
         try(BufferedWriter bw =new BufferedWriter(new FileWriter(forSaving.getFileName())))
         {
             bw.write(forSaving.getData());
+            return true;
         }catch(IOException e)
         {
             e.printStackTrace();
+            return false;
         }
 
     }
