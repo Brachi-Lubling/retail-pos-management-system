@@ -18,10 +18,11 @@ public class InquiryManagerServer {
 
     public void startServer() {
         try {
+            InquiryManager manager = new InquiryManager();
             while (true) {
                 Socket clientSocket = server.accept();
                 System.out.println("connected client: " + clientSocket.getRemoteSocketAddress());
-                HandleClient handler = new HandleClient(clientSocket);
+                HandleClient handler = new HandleClient(clientSocket,manager);
                 handler.start();
             }
         } catch (Exception e) {
