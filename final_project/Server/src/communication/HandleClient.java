@@ -41,6 +41,7 @@ public class HandleClient extends Thread{
                     new ObjectOutputStream(clientSocket.getOutputStream());
             oos.writeObject(response);
             oos.close();
+            clientSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
