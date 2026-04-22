@@ -41,6 +41,7 @@ public class HandleClient extends Thread{
                     new ObjectOutputStream(clientSocket.getOutputStream());
             oos.writeObject(response);
             oos.close();
+            clientSocket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -54,7 +55,7 @@ public class HandleClient extends Thread{
             message="oops something went wrong";
         }
         else {
-            status=ResponseStatus.SCCESS;
+            status=ResponseStatus.SUCCESS;
             message="enjoy";
         }
         return new Response(result,status,message);

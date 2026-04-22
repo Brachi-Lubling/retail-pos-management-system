@@ -1,4 +1,6 @@
 package communication;
+import repository.InquiryRepository;
+import repository.NextCodeValRepository;
 import service.InquiryManager;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -18,7 +20,9 @@ public class InquiryManagerServer {
 
     public void startServer() {
         try {
-            InquiryManager manager = new InquiryManager();
+            InquiryRepository inquiryRepository=new InquiryRepository();
+            NextCodeValRepository nextCodeValRepository=new NextCodeValRepository();
+            InquiryManager manager = new InquiryManager(inquiryRepository,nextCodeValRepository);
             while (true) {
                 Socket clientSocket = server.accept();
                 System.out.println("connected client: " + clientSocket.getRemoteSocketAddress());
