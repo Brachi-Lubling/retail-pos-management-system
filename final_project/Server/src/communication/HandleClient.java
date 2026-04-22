@@ -61,7 +61,7 @@ public class HandleClient extends Thread{
     }
 
     private Object handleActionRequest(Request request) {
-        switch (request.action){
+        switch (request.getAction()){
             case ALL_INQUIRY: return getAllInquiries();
             case ADD_INQUIRY: return addInquiry(request.getData());
             default: return null;

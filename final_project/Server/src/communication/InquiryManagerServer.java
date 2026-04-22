@@ -1,5 +1,5 @@
 package communication;
-
+import service.InquiryManager;
 import java.net.ServerSocket;
 import java.net.Socket;
 
