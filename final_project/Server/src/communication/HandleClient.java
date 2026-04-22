@@ -1,6 +1,6 @@
 package communication;
 
-import communication.data.Request;
+import communication.data.RequestComm;
 import communication.data.Response;
 import communication.data.ResponseStatus;
 import data.Inquiry;
@@ -26,7 +26,7 @@ public class HandleClient extends Thread{
 
     private void handleClientRequest() {
         try {
-            Request request =getRequest();
+            RequestComm request =getRequest();
             Object result=handleActionRequest(request);
             Response response=createResponse(result);
             respondToClient(response);
@@ -61,7 +61,7 @@ public class HandleClient extends Thread{
         return new Response(result,status,message);
     }
 
-    private Object handleActionRequest(Request request) {
+    private Object handleActionRequest(RequestComm request) {
         switch (request.getAction()){
             case ALL_INQUIRY: return getAllInquiries();
             case ADD_INQUIRY: return addInquiry(request.getData());
@@ -77,7 +77,7 @@ public class HandleClient extends Thread{
         return inquiryManager.getAllInquiries();
     }
 
-    private Request getRequest() throws IOException, ClassNotFoundException {
-        return (Request) new ObjectInputStream(clientSocket.getInputStream()).readObject();
+    private RequestComm getRequest() throws IOException, ClassNotFoundException {
+        return (RequestComm) new ObjectInputStream(clientSocket.getInputStream()).readObject();
     }
 }

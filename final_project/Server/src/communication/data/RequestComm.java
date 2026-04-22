@@ -2,7 +2,7 @@ package communication.data;
 import data.Inquiry;
 import java.io.Serializable;
 
-public class Request implements Serializable {
+public class RequestComm implements Serializable {
     private InquiryManagerActions action;
     private Inquiry data;
 
