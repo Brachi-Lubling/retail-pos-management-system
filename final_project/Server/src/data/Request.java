@@ -8,8 +8,7 @@ public class Request extends Inquiry{
         System.out.println("Request inquiry code: "+this.code);
     }
 
-    @Override
-    public  void fillData(String description,String assignedBranch) {
+    public  void fillData(String description) {
         super.fillData(description,"Request");
     }
 

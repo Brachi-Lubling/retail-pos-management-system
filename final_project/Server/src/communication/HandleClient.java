@@ -1,8 +1,6 @@
 package communication;
 
-import communication.data.RequestComm;
-import communication.data.Response;
-import communication.data.ResponseStatus;
+import communication.data.*;
 import data.Inquiry;
 import service.InquiryManager;
 
@@ -22,15 +20,18 @@ public class HandleClient extends Thread {
 
     @Override
     public void run() {
+
         try (
                 ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
                 ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())
         ) {
 
             while (true) {
+
                 RequestComm request = (RequestComm) in.readObject();
 
                 Object result = handleActionRequest(request);
+
                 Response response = createResponse(result);
 
                 out.writeObject(response);
@@ -38,7 +39,7 @@ public class HandleClient extends Thread {
             }
 
         } catch (Exception e) {
-            System.out.println("client disconnected");
+            System.out.println("client disconnected: " + e.getClass().getSimpleName());
         } finally {
             try {
                 clientSocket.close();
@@ -48,24 +49,31 @@ public class HandleClient extends Thread {
         }
     }
 
-    private Response createResponse(Object result) {
-        if (result == null) {
-            return new Response(null, ResponseStatus.FAIL, "oops something went wrong");
-        } else {
-            return new Response(result, ResponseStatus.SUCCESS, "enjoy");
-        }
-    }
-
     private Object handleActionRequest(RequestComm request) {
+
+        if (request == null || request.getAction() == null) {
+            return null;
+        }
+
         switch (request.getAction()) {
+
             case ALL_INQUIRY:
                 return inquiryManager.getAllInquiries();
 
             case ADD_INQUIRY:
-                return inquiryManager.addInquiry((Inquiry) request.getData());
+                return inquiryManager.addInquiry(request.getData());
 
             default:
                 return null;
         }
+    }
+
+    private Response createResponse(Object result) {
+
+        if (result == null) {
+            return new Response(null, ResponseStatus.FAIL, "operation failed");
+        }
+
+        return new Response(result, ResponseStatus.SUCCESS, "ok");
     }
 }

@@ -1,5 +1,8 @@
 package communication.data;
 
-public enum ResponseStatus {
-    SUCCESS, FAIL
+import java.io.Serializable;
+
+public enum ResponseStatus implements Serializable {
+    SUCCESS,
+    FAIL
 }
