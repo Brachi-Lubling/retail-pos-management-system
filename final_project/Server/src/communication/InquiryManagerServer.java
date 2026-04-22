@@ -1,7 +1,9 @@
 package communication;
+
 import repository.InquiryRepository;
 import repository.NextCodeValRepository;
 import service.InquiryManager;
+
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -19,18 +21,22 @@ public class InquiryManagerServer {
     }
 
     public void startServer() {
-        try {
-            InquiryRepository inquiryRepository=new InquiryRepository();
-            NextCodeValRepository nextCodeValRepository=new NextCodeValRepository();
-            InquiryManager manager = new InquiryManager(inquiryRepository,nextCodeValRepository);
-            while (true) {
+        InquiryRepository inquiryRepository = new InquiryRepository();
+        NextCodeValRepository nextCodeValRepository = new NextCodeValRepository();
+        InquiryManager manager = new InquiryManager(inquiryRepository, nextCodeValRepository);
+
+        while (true) {
+            try {
                 Socket clientSocket = server.accept();
                 System.out.println("connected client: " + clientSocket.getRemoteSocketAddress());
-                HandleClient handler = new HandleClient(clientSocket,manager);
+
+                HandleClient handler = new HandleClient(clientSocket, manager);
                 handler.start();
+
+            } catch (Exception e) {
+                System.out.println("error handling client connection");
+                e.printStackTrace();
             }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
         }
     }
 

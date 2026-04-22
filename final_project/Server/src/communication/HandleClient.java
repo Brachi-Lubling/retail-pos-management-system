@@ -1,83 +1,71 @@
 package communication;
 
-import communication.data.Request;
+import communication.data.RequestComm;
 import communication.data.Response;
 import communication.data.ResponseStatus;
 import data.Inquiry;
 import service.InquiryManager;
-import java.io.IOException;
+
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class HandleClient extends Thread{
-    Socket clientSocket;
-    InquiryManager inquiryManager;
+public class HandleClient extends Thread {
 
-    public HandleClient(Socket clientSocket,InquiryManager inquiryManager){
-        this.clientSocket=clientSocket;
-        this.inquiryManager=inquiryManager;
+    private Socket clientSocket;
+    private InquiryManager inquiryManager;
+
+    public HandleClient(Socket clientSocket, InquiryManager inquiryManager) {
+        this.clientSocket = clientSocket;
+        this.inquiryManager = inquiryManager;
     }
 
     @Override
-    public void run(){
-        this.handleClientRequest();
-    }
+    public void run() {
+        try (
+                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
+                ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())
+        ) {
 
-    private void handleClientRequest() {
-        try {
-            Request request =getRequest();
-            Object result=handleActionRequest(request);
-            Response response=createResponse(result);
-            respondToClient(response);
+            while (true) {
+                RequestComm request = (RequestComm) in.readObject();
+
+                Object result = handleActionRequest(request);
+                Response response = createResponse(result);
+
+                out.writeObject(response);
+                out.flush();
+            }
+
         } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void respondToClient(Response response) {
-        try {
-            ObjectOutputStream oos =
-                    new ObjectOutputStream(clientSocket.getOutputStream());
-            oos.writeObject(response);
-            oos.close();
-            clientSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("client disconnected");
+        } finally {
+            try {
+                clientSocket.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
     private Response createResponse(Object result) {
-        String message;
-        ResponseStatus status;
-        if(result==null) {
-            status=ResponseStatus.FAIL;
-            message="oops something went wrong";
-        }
-        else {
-            status=ResponseStatus.SUCCESS;
-            message="enjoy";
-        }
-        return new Response(result,status,message);
-    }
-
-    private Object handleActionRequest(Request request) {
-        switch (request.getAction()){
-            case ALL_INQUIRY: return getAllInquiries();
-            case ADD_INQUIRY: return addInquiry(request.getData());
-            default: return null;
+        if (result == null) {
+            return new Response(null, ResponseStatus.FAIL, "oops something went wrong");
+        } else {
+            return new Response(result, ResponseStatus.SUCCESS, "enjoy");
         }
     }
 
-    private Object addInquiry(Inquiry inquiry) {
-        return inquiryManager.addInquiry(inquiry);
-    }
+    private Object handleActionRequest(RequestComm request) {
+        switch (request.getAction()) {
+            case ALL_INQUIRY:
+                return inquiryManager.getAllInquiries();
 
-    private Object getAllInquiries() {
-        return inquiryManager.getAllInquiries();
-    }
+            case ADD_INQUIRY:
+                return inquiryManager.addInquiry((Inquiry) request.getData());
 
-    private Request getRequest() throws IOException, ClassNotFoundException {
-        return (Request) new ObjectInputStream(clientSocket.getInputStream()).readObject();
+            default:
+                return null;
+        }
     }
 }
