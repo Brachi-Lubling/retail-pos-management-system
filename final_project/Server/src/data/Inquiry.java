@@ -41,6 +41,7 @@ public abstract class Inquiry implements Serializable {
         this.description = description;
     }
 
-    public ProtocolFamily getType() {
+    public String getType() {
+        return type;
     }
 }

@@ -55,7 +55,7 @@ public class InquiryRepository {
     public void create(Inquiry inquiry) {
 
         try {
-            File typeFolder = new File(folder, inquiry.getType().name().toLowerCase());
+            File typeFolder = new File(folder, inquiry.getType().toLowerCase());
             if (!typeFolder.exists()) {
                 typeFolder.mkdirs();
             }
