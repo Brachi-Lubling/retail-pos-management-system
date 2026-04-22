@@ -1,5 +1,8 @@
 package communication.data;
 
-public enum InquiryManagerActions {
-    ALL_INQUIRY, ADD_INQUIRY
+import java.io.Serializable;
+
+public enum InquiryManagerActions implements Serializable {
+    ALL_INQUIRY,
+    ADD_INQUIRY
 }
