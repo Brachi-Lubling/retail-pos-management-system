@@ -2,17 +2,19 @@ package data;
 
 
 import java.io.*;
+import java.net.ProtocolFamily;
 import java.time.LocalDateTime;
 
 public abstract class Inquiry implements Serializable {
     protected Integer code;
     protected String description;
     protected LocalDateTime creationDate;
+    protected String type;
 
-
-    public void fillData(String description) {
+    public void fillData(String description,String type) {
         this.description=description;
         this.creationDate=LocalDateTime.now();
+        this.type=type;
     }
 
     public void handling(){
@@ -39,4 +41,6 @@ public abstract class Inquiry implements Serializable {
         this.description = description;
     }
 
+    public ProtocolFamily getType() {
+    }
 }

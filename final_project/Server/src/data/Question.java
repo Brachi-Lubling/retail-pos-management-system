@@ -8,4 +8,8 @@ public class Question extends Inquiry{
         System.out.println("Question inquiry code: "+this.code);
     }
 
+    @Override
+    public  void fillData(String description,String assignedBranch) {
+        super.fillData(description,"Question");
+    }
 }

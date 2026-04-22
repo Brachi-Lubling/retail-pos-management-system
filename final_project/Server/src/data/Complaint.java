@@ -10,7 +10,7 @@ public class Complaint extends Inquiry{
 
 
     public  void fillData(String description,String assignedBranch) {
-        super.fillData(description);
+        super.fillData(description,"complaint");
         this.assignedBranch=assignedBranch;
     }
 
