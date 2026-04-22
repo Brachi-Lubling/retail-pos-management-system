@@ -17,5 +17,14 @@ public class Complaint extends Inquiry{
     @Override
     public void handling(){
         System.out.println("Complaint inquiry code: "+this.code);
-    }}
+    }
+
+    public String getAssignedBranch() {
+        return assignedBranch;
+    }
+
+    public void setAssignedBranch(String assignedBranch) {
+        this.assignedBranch = assignedBranch;
+    }
+}
 
