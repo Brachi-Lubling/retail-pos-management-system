@@ -110,7 +110,7 @@ public class InquiryManagerClient {
 
     private void createCommunication(InquiryManagerActions action, Object data) {
         try {
-            RequestComm request = new RequestComm(action, data);
+            RequestComm request = new RequestComm(action, (Inquiry)data);
 
             oos.writeObject(request);
             oos.flush();

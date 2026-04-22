@@ -23,6 +23,9 @@ public class InquiryManager {
     }
 
     public synchronized Inquiry addInquiry(Inquiry inquiry) {
+
+        if (inquiry == null) return null;
+
         int code = nextCodeVal.getAndIncrement();
         inquiry.setCode(code);
 
