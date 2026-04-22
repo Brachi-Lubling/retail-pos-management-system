@@ -44,4 +44,5 @@ public abstract class Inquiry implements Serializable {
     public String getType() {
         return type;
     }
+
 }
