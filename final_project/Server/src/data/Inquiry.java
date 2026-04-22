@@ -9,10 +9,6 @@ public abstract class Inquiry implements Serializable {
     protected String description;
     protected LocalDateTime creationDate;
 
-    public Inquiry(int code)
-    {
-        this.code=code;
-    }
 
     public void fillData(String description) {
         this.description=description;

@@ -8,7 +8,6 @@ public class Complaint extends Inquiry{
 
     protected String assignedBranch;
 
-    public Complaint(int code) {super(code);}
 
     public  void fillData(String description,String assignedBranch) {
         super.fillData(description);
