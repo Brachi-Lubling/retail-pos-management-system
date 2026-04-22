@@ -13,28 +13,28 @@ public class InquiryManagerServer {
 
     public InquiryManagerServer(int port) {
         try {
-            System.out.println("starting server on port " + port);
             server = new ServerSocket(port);
+            System.out.println("server started on port " + port);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }
 
     public void startServer() {
-        InquiryRepository inquiryRepository = new InquiryRepository();
-        NextCodeValRepository nextCodeValRepository = new NextCodeValRepository();
-        InquiryManager manager = new InquiryManager(inquiryRepository, nextCodeValRepository);
+
+        InquiryManager manager =
+                new InquiryManager(new InquiryRepository(), new NextCodeValRepository());
 
         while (true) {
+
             try {
                 Socket clientSocket = server.accept();
-                System.out.println("connected client: " + clientSocket.getRemoteSocketAddress());
+                System.out.println("client connected");
 
                 HandleClient handler = new HandleClient(clientSocket, manager);
                 handler.start();
 
             } catch (Exception e) {
-                System.out.println("error handling client connection");
                 e.printStackTrace();
             }
         }
