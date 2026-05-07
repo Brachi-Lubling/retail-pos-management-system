@@ -44,4 +44,10 @@ public abstract class Inquiry implements Serializable {
     public String getType() {
         return type;
     }
+    @Override
+    public String toString() {
+        return "Code: " + code +
+                ", Description: " + description +
+                ", Date: " + creationDate;
+    }
 }
