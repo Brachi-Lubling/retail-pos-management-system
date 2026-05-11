@@ -61,7 +61,14 @@ public class HandleClient extends Thread {
                 return inquiryManager.getAllInquiries();
 
             case ADD_INQUIRY:
-                return inquiryManager.addInquiry(request.getData());
+                Object[] data = (Object[]) request.getData();
+
+                if (data == null || data.length == 0) {
+                    return null;
+                }
+
+                Inquiry inquiry = (Inquiry) data[0];
+                return inquiryManager.addInquiry(inquiry);
 
             default:
                 return null;
