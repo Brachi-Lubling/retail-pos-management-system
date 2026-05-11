@@ -21,6 +21,16 @@ public abstract class Inquiry implements Serializable {
         System.out.println("Inquiry inquiry code: "+this.code);
     }
 
+    private INQUIRY_STATUS status;
+
+    public INQUIRY_STATUS getStatus() {
+        return status;
+    }
+
+    public void setStatus(INQUIRY_STATUS status) {
+        this.status = status;
+    }
+
     public Integer getCode() {
         return code;
     }
