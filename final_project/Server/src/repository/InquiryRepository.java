@@ -3,6 +3,7 @@ package repository;
 import data.Inquiry;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -70,5 +71,66 @@ public class InquiryRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+
+    public int countByMonth(int month)
+    {
+        int count = 0;
+
+        String[] folders = {
+                "data/request",
+                "data/complaint",
+                "data/question",
+                "data/history"
+        };
+
+        for (String path : folders)
+        {
+            File folder = new File(path);
+
+            File[] files = folder.listFiles();
+
+            if (files == null)
+                continue;
+
+            for (File file : files)
+            {
+                if (!file.isFile())
+                    continue;
+
+                LocalDate date = readDate(file);
+
+                if (date != null && date.getMonthValue() == month)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+
+    private LocalDate readDate(File file)
+    {
+        try (BufferedReader br = new BufferedReader(new FileReader(file)))
+        {
+            String line;
+
+            while ((line = br.readLine()) != null)
+            {
+                if (line.startsWith("createdAt="))
+                {
+                    return LocalDate.parse(line.split("=")[1].trim());
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            return null;
+        }
+
+        return null;
     }
 }

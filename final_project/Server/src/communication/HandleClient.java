@@ -63,6 +63,12 @@ public class HandleClient extends Thread {
             case ADD_INQUIRY:
                 return inquiryManager.addInquiry(request.getData());
 
+            case GET_INQUIRIES_COUNT_BY_MONTH:
+            {
+                int month = (Integer) request.getData();
+                return inquiryManager.getInquiriesCountByMonth(month);
+            }
+
             default:
                 return null;
         }

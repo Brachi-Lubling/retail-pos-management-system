@@ -40,4 +40,10 @@ public class InquiryManager {
     public List<Inquiry> getAllInquiries() {
         return new ArrayList<>(inquiriesQueue);
     }
+
+
+    public int getInquiriesCountByMonth(int month)
+    {
+        return inquiryRepository.countByMonth(month);
+    }
 }
