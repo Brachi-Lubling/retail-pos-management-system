@@ -8,18 +8,18 @@ public class RequestComm implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private InquiryManagerActions action;
-    private Inquiry data;
+    private Object requestParameters;
 
-    public RequestComm(InquiryManagerActions action, Inquiry data) {
+    public RequestComm(InquiryManagerActions action, Object... requestParameters) {
         this.action = action;
-        this.data = data;
+        this.requestParameters = requestParameters;
     }
 
     public InquiryManagerActions getAction() {
         return action;
     }
 
-    public Inquiry getData() {
-        return data;
+    public Object getData() {
+        return  requestParameters;
     }
 }
