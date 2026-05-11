@@ -65,7 +65,17 @@ public class HandleClient extends Thread {
 
             case GET_INQUIRIES_COUNT_BY_MONTH:
             {
-                int month = (Integer) request.getData();
+                Object data = request.getData();
+
+                if (!(data instanceof Integer))
+                {
+                    System.out.println("ERROR: expected Integer but got " +
+                            (data == null ? "null" : data.getClass().getSimpleName()));
+                    return null;
+                }
+
+                int month = (Integer) data;
+
                 return inquiryManager.getInquiriesCountByMonth(month);
             }
 
