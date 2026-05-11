@@ -14,11 +14,13 @@ import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
 
-public class InquiryManagerClient {
+public class InquiryManagerClient
+{
 
     private Socket socket;
     private ObjectOutputStream oos;
     private ObjectInputStream ois;
+    private Scanner scanner = new Scanner(System.in);
 
     public InquiryManagerClient(Socket socket) {
         this.socket = socket;
@@ -32,10 +34,9 @@ public class InquiryManagerClient {
     }
 
     public void runMenu() {
-        Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("press 1-create inquiry, 2-get all inquiries in queue");
+            System.out.println("press 1-create inquiry, 2-get all inquiries in queue,3- get count by month");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -45,6 +46,9 @@ public class InquiryManagerClient {
                     break;
                 case 2:
                     getAllInqueries();
+                    break;
+                case 3:
+                    getInquiriesCountByMonth();
                     break;
                 default:
                     System.out.println("the number is not valid");
@@ -126,6 +130,30 @@ public class InquiryManagerClient {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void getInquiriesCountByMonth()
+    {
+        try
+        {
+            System.out.println("Enter month:");
+            int month = scanner.nextInt();
+            scanner.nextLine();
+            RequestComm request = new RequestComm(InquiryManagerActions.GET_INQUIRIES_COUNT_BY_MONTH, month);
+            oos.writeObject(request);
+            oos.flush();
+            Response response = (Response) ois.readObject();
+            System.out.println("Status: " + response.getStatus());
+            System.out.println("Message: " + response.getMessage());
+            if (response.getResult() != null)
+            {
+                System.out.println("Result: " + response.getResult());
+            }
+        }
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
