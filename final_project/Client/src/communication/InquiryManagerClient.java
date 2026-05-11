@@ -106,12 +106,12 @@ public class InquiryManagerClient {
     }
 
     private void getAllInqueries() {
-        createCommunication(InquiryManagerActions.ALL_INQUIRY, null);
+        createCommunication(InquiryManagerActions.ALL_INQUIRY);
     }
 
-    private void createCommunication(InquiryManagerActions action, Object data) {
+    private void createCommunication(InquiryManagerActions action, Object... data) {
         try {
-            RequestComm request = new RequestComm(action, (Inquiry)data);
+            RequestComm request = new RequestComm(action,data);
 
             oos.writeObject(request);
             oos.flush();
