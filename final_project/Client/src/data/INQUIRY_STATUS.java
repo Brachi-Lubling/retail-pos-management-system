@@ -1,2 +1,8 @@
-package data;public class INQUIRY_STATUS {
+package data;
+
+public enum INQUIRY_STATUS {
+    OPEN,
+    CANCELED,
+    IN_PROGRESS,
+    HISTORY
 }

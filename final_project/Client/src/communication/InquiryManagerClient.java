@@ -115,7 +115,7 @@ public class InquiryManagerClient
 
     private void createCommunication(InquiryManagerActions action, Object data) {
         try {
-            RequestComm request = new RequestComm(action, (Inquiry)data);
+            RequestComm request = new RequestComm(action, (Object) data);
 
             oos.writeObject(request);
             oos.flush();
@@ -133,6 +133,8 @@ public class InquiryManagerClient
             e.printStackTrace();
         }
     }
+
+
 
     private void getInquiriesCountByMonth()
     {

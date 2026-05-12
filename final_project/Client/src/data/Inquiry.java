@@ -6,10 +6,13 @@ import java.net.ProtocolFamily;
 import java.time.LocalDateTime;
 
 public abstract class Inquiry implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     protected Integer code;
     protected String description;
     protected LocalDateTime creationDate;
     protected String type;
+    private INQUIRY_STATUS status;
 
     public void fillData(String description,String type) {
         this.description=description;
@@ -17,6 +20,13 @@ public abstract class Inquiry implements Serializable {
         this.type=type;
     }
 
+    public INQUIRY_STATUS getStatus() {
+        return status;
+    }
+
+    public void setStatus(INQUIRY_STATUS status) {
+        this.status = status;
+    }
     public void handling(){
         System.out.println("Inquiry inquiry code: "+this.code);
     }
