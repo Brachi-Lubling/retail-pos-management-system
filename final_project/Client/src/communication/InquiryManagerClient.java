@@ -35,7 +35,7 @@ public class InquiryManagerClient {
         Scanner scanner = new Scanner(System.in);
 
         while (true) {
-            System.out.println("press 1-create inquiry, 2-get all inquiries in queue");
+            System.out.println("press 1-create inquiry, 2-get all inquiries in queue,3-get inquiry status");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -46,10 +46,19 @@ public class InquiryManagerClient {
                 case 2:
                     getAllInqueries();
                     break;
+                case 3:
+                    getInquiryStatus();
                 default:
                     System.out.println("the number is not valid");
             }
         }
+    }
+
+    private void getInquiryStatus() {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("insert inquiry id to get it status");
+        int id=scanner.nextInt();
+        createCommunication(InquiryManagerActions.GET_INQUIRY_STATUS,id);
     }
 
     public void inquiryCreation() {
@@ -58,6 +67,7 @@ public class InquiryManagerClient {
         System.out.println("press 1-question, 2-request, 3-complaint 0-to exit");
         int choice = scanner.nextInt();
         scanner.nextLine();
+
 
         while (choice != 0) {
             Inquiry currentInquiry = createOneInquiry(choice);
