@@ -38,8 +38,10 @@ public class HandleClient extends Thread {
                 out.flush();
             }
 
-        } catch (Exception e) {
+      } catch (Exception e) {
             System.out.println("client disconnected: " + e.getClass().getSimpleName());
+//            e.printStackTrace(); // חשוב לראות מה קורס
+
         } finally {
             try {
                 clientSocket.close();
@@ -61,7 +63,10 @@ public class HandleClient extends Thread {
                 return inquiryManager.getAllInquiries();
 
             case ADD_INQUIRY:
-                return inquiryManager.addInquiry(request.getData());
+                if (!(request.getData() instanceof Inquiry)) {
+                    return null;
+                }
+                return inquiryManager.addInquiry((Inquiry) request.getData());
 
             case GET_INQUIRIES_COUNT_BY_MONTH:
             {

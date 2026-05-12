@@ -8,9 +8,9 @@ public class RequestComm implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private InquiryManagerActions action;
-    private Inquiry data;
+    private Object  data;
 
-    public RequestComm(InquiryManagerActions action, Inquiry data) {
+    public RequestComm(InquiryManagerActions action, Object data) {
         this.action = action;
         this.data = data;
     }
@@ -19,7 +19,7 @@ public class RequestComm implements Serializable {
         return action;
     }
 
-    public Inquiry getData() {
+    public Object  getData() {
         return data;
     }
 }

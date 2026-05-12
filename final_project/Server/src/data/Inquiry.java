@@ -6,6 +6,8 @@ import java.net.ProtocolFamily;
 import java.time.LocalDateTime;
 
 public abstract class Inquiry implements Serializable {
+
+    private static final long serialVersionUID = 1L;
     protected Integer code;
     protected String description;
     protected LocalDateTime creationDate;

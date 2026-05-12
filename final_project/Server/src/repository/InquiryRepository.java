@@ -112,25 +112,17 @@ public class InquiryRepository {
     }
 
 
-    private LocalDate readDate(File file)
-    {
-        try (BufferedReader br = new BufferedReader(new FileReader(file)))
-        {
-            String line;
+    private LocalDate readDate(File file) {
+        try (ObjectInputStream in =
+                     new ObjectInputStream(new FileInputStream(file))) {
 
-            while ((line = br.readLine()) != null)
-            {
-                if (line.startsWith("createdAt="))
-                {
-                    return LocalDate.parse(line.split("=")[1].trim());
-                }
-            }
-        }
-        catch (Exception e)
-        {
+            Inquiry inquiry = (Inquiry) in.readObject();
+
+            return inquiry.getCreationDate().toLocalDate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
             return null;
         }
-
-        return null;
     }
 }
