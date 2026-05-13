@@ -63,23 +63,34 @@ public class HandleClient extends Thread {
                 return inquiryManager.getAllInquiries();
 
             case ADD_INQUIRY:
-                if (!(request.getData() instanceof Inquiry)) {
+            {
+                Object[] data = (Object[]) request.getData();
+
+                if (data == null || data.length == 0) {
                     return null;
                 }
-                return inquiryManager.addInquiry((Inquiry) request.getData());
+
+                Inquiry inquiry = (Inquiry) data[0];
+                return inquiryManager.addInquiry(inquiry);
+            }
 
             case GET_INQUIRIES_COUNT_BY_MONTH:
             {
-                Object data = request.getData();
+                Object[] data = (Object[]) request.getData();
 
-                if (!(data instanceof Integer))
-                {
-                    System.out.println("ERROR: expected Integer but got " +
-                            (data == null ? "null" : data.getClass().getSimpleName()));
+                if (data == null || data.length == 0) {
                     return null;
                 }
 
-                int month = (Integer) data;
+                Object value = data[0];
+
+                if (!(value instanceof Integer)) {
+                    System.out.println("ERROR: expected Integer but got " +
+                            (value == null ? "null" : value.getClass().getSimpleName()));
+                    return null;
+                }
+
+                int month = (Integer) value;
 
                 return inquiryManager.getInquiriesCountByMonth(month);
             }
@@ -88,7 +99,6 @@ public class HandleClient extends Thread {
                 return null;
         }
     }
-
     private Response createResponse(Object result) {
 
         if (result == null) {
