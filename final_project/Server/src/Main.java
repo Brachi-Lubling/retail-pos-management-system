@@ -1,34 +1,100 @@
 import communication.HandleClient;
-import repository.InquiryRepository;
-import repository.NextCodeValRepository;
+import repository.*;
 import service.InquiryManager;
+import data.Representative;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class Main {
+
     public static void main(String[] args) {
+
         int port = 8888;
+        Scanner scanner = new Scanner(System.in);
 
-        try {
-            ServerSocket serverSocket = new ServerSocket(port);
+        System.out.println("Select mode:");
+        System.out.println("1 - Server mode (clients)");
+        System.out.println("2 - Admin mode (add/delete representatives)");
 
-            System.out.println("Server started on port " + port);
+        int mode = scanner.nextInt();
 
-            InquiryRepository inquiryRepository = new InquiryRepository();
-            NextCodeValRepository codeRepo = new NextCodeValRepository();
-            InquiryManager manager = new InquiryManager(inquiryRepository, codeRepo);
+        InquiryRepository inquiryRepository = new InquiryRepository();
+        NextCodeValRepository codeRepo = new NextCodeValRepository();
+
+        RepresentativeRepository repRepo = new RepresentativeRepository();
+        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
+
+        InquiryManager manager =
+                new InquiryManager(inquiryRepository, codeRepo, repRepo, repCodeRepo);
+
+        // =========================
+        // MODE 1 - SERVER
+        // =========================
+        if (mode == 1) {
+
+            new Thread(() -> {
+                try {
+                    ServerSocket serverSocket = new ServerSocket(port);
+                    System.out.println("Server started on port " + port);
+
+                    while (true) {
+                        Socket clientSocket = serverSocket.accept();
+                        System.out.println("Client connected: " +
+                                clientSocket.getRemoteSocketAddress());
+
+                        HandleClient handler =
+                                new HandleClient(clientSocket, manager);
+                        handler.start();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }).start();
+        }
+
+        // =========================
+        // MODE 2 - ADMIN
+        // =========================
+        else if (mode == 2) {
 
             while (true) {
-                Socket clientSocket = serverSocket.accept();
-                System.out.println("Client connected: " + clientSocket.getRemoteSocketAddress());
 
-                HandleClient handler = new HandleClient(clientSocket, manager);
-                handler.start();
+                System.out.println("\nChoose action:");
+                System.out.println("1 - Add representative");
+                System.out.println("2 - Delete representative");
+
+                int choice = scanner.nextInt();
+
+                if (choice == 1) {
+
+                    System.out.println("First name:");
+                    String name = scanner.next();
+
+                    System.out.println("ID:");
+                    String id = scanner.next();
+
+                    Representative rep = new Representative(name, id);
+
+                    manager.addRepresentative(rep);
+
+                    System.out.println("Representative added");
+
+                } else if (choice == 2) {
+
+                    System.out.println("Representative code:");
+                    int code = scanner.nextInt();
+
+                    boolean result =
+                            manager.deleteRepresentative(code);
+
+                    System.out.println(
+                            result ? "Deleted successfully" : "Not found"
+                    );
+                }
             }
-
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

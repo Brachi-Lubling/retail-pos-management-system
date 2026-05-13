@@ -1,8 +1,9 @@
 package data;
 
-public class Representative {
+import java.io.Serializable;
 
-    private static int nextCode = 1000;
+public class Representative implements Serializable {
+
 
     private int employeeCode;
     private String firstName;
@@ -12,7 +13,7 @@ public class Representative {
     }
 
     public Representative(String firstName, String id) {
-        this.employeeCode = nextCode++;
+
         this.firstName = firstName;
         this.id = id;
     }
