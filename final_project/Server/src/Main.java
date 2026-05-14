@@ -3,6 +3,7 @@ import repository.*;
 import service.InquiryManager;
 import data.Representative;
 
+import java.io.File;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -20,14 +21,15 @@ public class Main {
 
         int mode = scanner.nextInt();
 
-        InquiryRepository inquiryRepository = new InquiryRepository();
+        InquiryRepository dataRepository = new InquiryRepository(new File("data"));
+        InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
         NextCodeValRepository codeRepo = new NextCodeValRepository();
 
         RepresentativeRepository repRepo = new RepresentativeRepository();
         RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
 
         InquiryManager manager =
-                new InquiryManager(inquiryRepository, codeRepo, repRepo, repCodeRepo);
+                new InquiryManager(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
 
         // =========================
         // MODE 1 - SERVER

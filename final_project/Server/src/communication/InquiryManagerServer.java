@@ -6,6 +6,7 @@ import repository.RepresentativeCodeRepository;
 import repository.RepresentativeRepository;
 import service.InquiryManager;
 
+import java.io.File;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -24,14 +25,15 @@ public class InquiryManagerServer {
 
     public void startServer() {
 
-        InquiryRepository inquiryRepository = new InquiryRepository();
+        InquiryRepository dataRepository = new InquiryRepository(new File("data"));
+        InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
         NextCodeValRepository codeRepo = new NextCodeValRepository();
 
         RepresentativeRepository repRepo = new RepresentativeRepository();
         RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
 
         InquiryManager manager =
-                new InquiryManager(inquiryRepository, codeRepo, repRepo, repCodeRepo);
+                new InquiryManager(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
 
         while (true) {
 
