@@ -10,7 +10,11 @@ import java.util.List;
 
 public class InquiryRepository {
 
-    File folder = new File("data");
+    private final File folder;
+
+    public InquiryRepository(File folder) {
+        this.folder = folder;
+    }
 
     public Collection<Inquiry> readAll() {
 
