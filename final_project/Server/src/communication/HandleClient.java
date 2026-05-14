@@ -110,7 +110,17 @@ public class HandleClient extends Thread {
                 int code = (Integer) value;
                 return inquiryManager.cancelInquiry(code);
             }
+            case GET_INQUIRY_STATUS: {
+                Object[] statusData = (Object[]) request.getData();
 
+                if (statusData == null || statusData.length == 0) {
+                    return null;
+                }
+
+                String inquiryCode = (String) statusData[0];
+
+                return inquiryManager.getInquiryStatus(inquiryCode);
+            }
             default:
                 return null;
         }

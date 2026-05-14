@@ -4,5 +4,5 @@ public enum INQUIRY_STATUS {
     OPEN,
     CANCELED,
     IN_PROGRESS,
-    HISTORY
+    DONE
 }

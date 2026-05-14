@@ -115,6 +115,46 @@ public class InquiryManager {
 
         return true;
     }
+
+    public Response getInquiryStatus(String inquiryCode) {
+
+        Inquiry archivedInquiry = archiveRepository.findByCode(inquiryCode);
+
+        if (archivedInquiry != null) {
+            return new Response(
+                    archivedInquiry.getStatus(),
+                    ResponseStatus.SUCCESS,
+                    "Inquiry found in archive"
+            );
+        }
+
+        boolean isPending = inquiriesQueue.stream()
+                .anyMatch(i -> i.getCode().toString().equals(inquiryCode));
+
+        if (isPendingInQueue) {
+            return new Response(
+                    "OPEN",
+                    ResponseStatus.SUCCESS,
+                    "Inquiry is pending in queue"
+            );
+        }
+
+        Inquiry activeInquiry = dataRepository.findByCode(inquiryCode);
+
+        if (activeInquiry != null) {
+            return new Response(
+                    "IN_PROGRESS",
+                    ResponseStatus.SUCCESS,
+                    "Inquiry is currently being handled"
+            );
+        }
+
+        return new ResponseData(
+                ResponseCode.FAIL,
+                "לא נמצאה פניה עם קוד " + inquiryCode
+        );
+    }
+
     public List<Representative> getAllRepresentatives() {
         return new ArrayList<>(representativesQueue);
     }
