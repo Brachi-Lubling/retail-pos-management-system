@@ -131,9 +131,8 @@ public class InquiryManagerClient
 
                 System.out.println("insert agent id");
 
-                int loginId = scanner.nextInt();
+                String loginId = scanner.nextLine();
 
-                scanner.nextLine();
 
                 agentLogin(loginId);
 
@@ -143,9 +142,7 @@ public class InquiryManagerClient
 
                 System.out.println("insert agent id");
 
-                int logoutId = scanner.nextInt();
-
-                scanner.nextLine();
+                String logoutId = scanner.nextLine();
 
                 agentLogout(logoutId);
 
@@ -163,7 +160,7 @@ public class InquiryManagerClient
         }
     }
 
-    private void agentLogin(int agentId)
+    private void agentLogin(String agentId)
     {
         createCommunication(
                 InquiryManagerActions.AGENT_LOGIN,
@@ -171,7 +168,7 @@ public class InquiryManagerClient
         );
     }
 
-    private void agentLogout(int agentId)
+    private void agentLogout(String agentId)
     {
         createCommunication(
                 InquiryManagerActions.AGENT_LOGOUT,
