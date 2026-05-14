@@ -14,6 +14,7 @@ public class InquiryRepository {
 
     public InquiryRepository(File folder) {
         this.folder = folder;
+        folder.mkdir();
     }
 
     public Collection<Inquiry> readAll() {
