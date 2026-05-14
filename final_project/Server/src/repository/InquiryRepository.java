@@ -10,7 +10,12 @@ import java.util.List;
 
 public class InquiryRepository {
 
-    File folder = new File("data");
+    private final File folder;
+
+    public InquiryRepository(File folder) {
+        this.folder = folder;
+        folder.mkdir();
+    }
 
     public Collection<Inquiry> readAll() {
 
@@ -73,6 +78,10 @@ public class InquiryRepository {
         }
     }
 
+    public boolean delete(int code, String type) {
+        File file = new File(folder, type.toLowerCase() + "/" + code + ".bin");
+        return file.exists() && file.delete();
+    }
 
     public int countByMonth(int month)
     {

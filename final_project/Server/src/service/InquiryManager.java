@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InquiryManager {
 
-    private final InquiryRepository inquiryRepository;
+    private final InquiryRepository dataRepository;
+    private final InquiryRepository archiveRepository;
     private final NextCodeValRepository nextCodeValRepository;
     private final Queue<Inquiry> inquiriesQueue = new ConcurrentLinkedQueue<>();
     private final AtomicInteger nextCodeVal = new AtomicInteger();
@@ -20,18 +21,20 @@ public class InquiryManager {
 
     private final AtomicInteger representativeNextCode =
             new AtomicInteger();
-    public InquiryManager(InquiryRepository repo,
+
+    public InquiryManager(InquiryRepository dataRepository,
+                          InquiryRepository archiveRepository,
                           NextCodeValRepository codeRepo,
                           RepresentativeRepository repRepo,
                           RepresentativeCodeRepository repCodeRepo) {
 
-        this.inquiryRepository = repo;
+        this.dataRepository = dataRepository;
+        this.archiveRepository = archiveRepository;
         this.nextCodeValRepository = codeRepo;
-
         this.representativeRepository = repRepo;
         this.representativeCodeRepository = repCodeRepo;
 
-        inquiriesQueue.addAll(repo.readAll());
+        inquiriesQueue.addAll(dataRepository.readAll());
         nextCodeVal.set(codeRepo.get());
 
         representativesQueue.addAll(repRepo.readAll());
@@ -45,7 +48,7 @@ public class InquiryManager {
         int code = nextCodeVal.getAndIncrement();
         inquiry.setCode(code);
 
-        inquiryRepository.create(inquiry);
+        dataRepository.create(inquiry);
         nextCodeValRepository.update(nextCodeVal.get());
 
         inquiriesQueue.offer(inquiry);
@@ -57,10 +60,27 @@ public class InquiryManager {
         return new ArrayList<>(inquiriesQueue);
     }
 
+    public synchronized boolean cancelInquiry(int code) {
+
+        Inquiry target = inquiriesQueue.stream()
+                .filter(i -> i.getCode() == code)
+                .findFirst()
+                .orElse(null);
+
+        if (target == null) return false;
+
+        target.setStatus(INQUIRY_STATUS.CANCELED);
+
+        dataRepository.delete(target.getCode(), target.getType());
+        archiveRepository.create(target);
+
+        inquiriesQueue.remove(target);
+        return true;
+    }
 
     public int getInquiriesCountByMonth(int month)
     {
-        return inquiryRepository.countByMonth(month);
+        return dataRepository.countByMonth(month);
     }
     public synchronized Representative addRepresentative(Representative rep) {
 

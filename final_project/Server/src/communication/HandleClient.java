@@ -62,8 +62,7 @@ public class HandleClient extends Thread {
             case ALL_INQUIRY:
                 return inquiryManager.getAllInquiries();
 
-            case ADD_INQUIRY:
-            {
+            case ADD_INQUIRY:{
                 Object[] data = (Object[]) request.getData();
 
                 if (data == null || data.length == 0) {
@@ -74,8 +73,7 @@ public class HandleClient extends Thread {
                 return inquiryManager.addInquiry(inquiry);
             }
 
-            case GET_INQUIRIES_COUNT_BY_MONTH:
-            {
+            case GET_INQUIRIES_COUNT_BY_MONTH:{
                 Object[] data = (Object[]) request.getData();
 
                 if (data == null || data.length == 0) {
@@ -95,15 +93,39 @@ public class HandleClient extends Thread {
                 return inquiryManager.getInquiriesCountByMonth(month);
             }
 
+            case CANCEL_INQUIRY:
+            {
+                Object[] data = (Object[]) request.getData();
+
+                if (data == null || data.length == 0) return null;
+
+                Object value = data[0];
+
+                if (!(value instanceof Integer)) {
+                    System.out.println("ERROR: expected Integer but got " +
+                            (value == null ? "null" : value.getClass().getSimpleName()));
+                    return null;
+                }
+
+                int code = (Integer) value;
+                return inquiryManager.cancelInquiry(code);
+            }
+
             default:
                 return null;
         }
     }
+
+
     private Response createResponse(Object result) {
 
-        if (result == null) {
+        if (result == null)
             return new Response(null, ResponseStatus.FAIL, "operation failed");
-        }
+
+        if (result instanceof Boolean)
+            return ((Boolean) result)
+                    ? new Response(true, ResponseStatus.SUCCESS, "ok")
+                    : new Response(null, ResponseStatus.FAIL, "operation failed");
 
         return new Response(result, ResponseStatus.SUCCESS, "ok");
     }
