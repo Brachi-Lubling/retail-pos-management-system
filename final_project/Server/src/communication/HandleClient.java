@@ -1,3 +1,5 @@
+
+
 package communication;
 
 import communication.data.*;
@@ -8,103 +10,175 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class HandleClient extends Thread {
-
+public class HandleClient extends Thread
+{
     private Socket clientSocket;
+
     private InquiryManager inquiryManager;
 
-    public HandleClient(Socket clientSocket, InquiryManager inquiryManager) {
+    public HandleClient(
+            Socket clientSocket,
+            InquiryManager inquiryManager
+    )
+    {
         this.clientSocket = clientSocket;
+
         this.inquiryManager = inquiryManager;
     }
 
     @Override
-    public void run() {
+    public void run()
+    {
+        try
+                (
+                        ObjectOutputStream out =
+                                new ObjectOutputStream(
+                                        clientSocket.getOutputStream()
+                                );
 
-        try (
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())
-        ) {
+                        ObjectInputStream in =
+                                new ObjectInputStream(
+                                        clientSocket.getInputStream()
+                                )
+                )
+        {
+            while (true)
+            {
+                RequestComm request =
+                        (RequestComm) in.readObject();
 
-            while (true) {
+                Object result =
+                        handleActionRequest(request);
 
-                RequestComm request = (RequestComm) in.readObject();
-
-                Object result = handleActionRequest(request);
-
-                Response response = createResponse(result);
+                Response response =
+                        createResponse(result);
 
                 out.writeObject(response);
+
                 out.flush();
             }
-
-      } catch (Exception e) {
-            System.out.println("client disconnected: " + e.getClass().getSimpleName());
-//            e.printStackTrace(); // חשוב לראות מה קורס
-
-        } finally {
-            try {
+        }
+        catch (Exception e)
+        {
+            System.out.println(
+                    "client disconnected: " +
+                            e.getClass().getSimpleName()
+            );
+        }
+        finally
+        {
+            try
+            {
                 clientSocket.close();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
     }
 
-    private Object handleActionRequest(RequestComm request) {
-
-        if (request == null || request.getAction() == null) {
+    private Object handleActionRequest(RequestComm request)
+    {
+        if (request == null ||
+                request.getAction() == null)
+        {
             return null;
         }
 
-        switch (request.getAction()) {
-
+        switch (request.getAction())
+        {
             case ALL_INQUIRY:
+
                 return inquiryManager.getAllInquiries();
 
             case ADD_INQUIRY:
             {
-                Object[] data = (Object[]) request.getData();
+                Object[] data =
+                        (Object[]) request.getData();
 
-                if (data == null || data.length == 0) {
+                if (data == null || data.length == 0)
+                {
                     return null;
                 }
 
-                Inquiry inquiry = (Inquiry) data[0];
+                Inquiry inquiry =
+                        (Inquiry) data[0];
+
                 return inquiryManager.addInquiry(inquiry);
             }
 
             case GET_INQUIRIES_COUNT_BY_MONTH:
             {
-                Object[] data = (Object[]) request.getData();
+                Object[] data =
+                        (Object[]) request.getData();
 
-                if (data == null || data.length == 0) {
+                if (data == null || data.length == 0)
+                {
                     return null;
                 }
 
-                Object value = data[0];
+                int month = (Integer) data[0];
 
-                if (!(value instanceof Integer)) {
-                    System.out.println("ERROR: expected Integer but got " +
-                            (value == null ? "null" : value.getClass().getSimpleName()));
+                return inquiryManager
+                        .getInquiriesCountByMonth(month);
+            }
+
+            case AGENT_LOGIN:
+            {
+                Object[] data =
+                        (Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                {
                     return null;
                 }
 
-                int month = (Integer) value;
+                String id = (String) data[0];
 
-                return inquiryManager.getInquiriesCountByMonth(month);
+                inquiryManager.loginAgent(id);
+
+                return "agent logged in";
+            }
+
+            case AGENT_LOGOUT:
+            {
+                Object[] data =
+                        (Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                {
+                    return null;
+                }
+
+                String id = (String) data[0];
+
+                inquiryManager.logoutAgent(id);
+
+                return "agent logged out";
             }
 
             default:
+
                 return null;
         }
     }
-    private Response createResponse(Object result) {
 
-        if (result == null) {
-            return new Response(null, ResponseStatus.FAIL, "operation failed");
+    private Response createResponse(Object result)
+    {
+        if (result == null)
+        {
+            return new Response(
+                    null,
+                    ResponseStatus.FAIL,
+                    "operation failed"
+            );
         }
 
-        return new Response(result, ResponseStatus.SUCCESS, "ok");
+        return new Response(
+                result,
+                ResponseStatus.SUCCESS,
+                "ok"
+        );
     }
 }
