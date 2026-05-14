@@ -60,6 +60,23 @@ public class InquiryManager {
         return new ArrayList<>(inquiriesQueue);
     }
 
+    public synchronized boolean cancelInquiry(int code) {
+
+        Inquiry target = inquiriesQueue.stream()
+                .filter(i -> i.getCode() == code)
+                .findFirst()
+                .orElse(null);
+
+        if (target == null) return false;
+
+        target.setStatus(INQUIRY_STATUS.CANCELED);
+
+        dataRepository.delete(target.getCode(), target.getType());
+        archiveRepository.create(target);
+
+        inquiriesQueue.remove(target);
+        return true;
+    }
 
     public int getInquiriesCountByMonth(int month)
     {
