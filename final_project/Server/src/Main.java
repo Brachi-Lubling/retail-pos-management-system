@@ -31,9 +31,7 @@ public class Main {
         InquiryManager manager =
                 new InquiryManager(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
 
-        // =========================
-        // MODE 1 - SERVER
-        // =========================
+
         if (mode == 1) {
 
             new Thread(() -> {
@@ -57,9 +55,7 @@ public class Main {
             }).start();
         }
 
-        // =========================
-        // MODE 2 - ADMIN
-        // =========================
+
         else if (mode == 2) {
 
             while (true) {
