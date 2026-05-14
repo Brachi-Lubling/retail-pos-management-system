@@ -77,6 +77,10 @@ public class InquiryRepository {
         }
     }
 
+    public boolean delete(int code, String type) {
+        File file = new File(folder, type.toLowerCase() + "/" + code + ".bin");
+        return file.exists() && file.delete();
+    }
 
     public int countByMonth(int month)
     {
