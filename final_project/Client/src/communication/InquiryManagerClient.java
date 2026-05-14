@@ -219,8 +219,7 @@ public class InquiryManagerClient
     public void runMenu() {
 
         while (true) {
-            System.out.println("press 1-create inquiry, 2-get all inquiries in queue, 3-get count by month, 4-get inquiry status");
-
+            System.out.println("press 1-create inquiry, 2-get all inquiries in queue, 3-get count by month, 4-get inquiry status, 5-cancel inquiry");
             int choice = scanner.nextInt();
             scanner.nextLine();
 
@@ -241,10 +240,21 @@ public class InquiryManagerClient
                     getInquiryStatus();
                     break;
 
+                case 5:
+                    cancelInquiry();
+                    break;
+
                 default:
                     System.out.println("the number is not valid");
             }
         }
+    }
+
+    private void cancelInquiry() {
+        System.out.println("insert inquiry code to cancel");
+        int code = scanner.nextInt();
+        scanner.nextLine();
+        createCommunication(InquiryManagerActions.CANCEL_INQUIRY, code);
     }
 
     private void getInquiryStatus() {
