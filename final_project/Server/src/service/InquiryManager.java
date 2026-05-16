@@ -19,12 +19,11 @@ public class InquiryManager
     private final Queue<Inquiry> inquiriesQueue =
             new ConcurrentLinkedQueue<>();
 
+    // כל הסוכנים במערכת
     private final Queue<Representative> representativesQueue =
             new ConcurrentLinkedQueue<>();
 
-    private final Queue<Representative> existingAgents =
-            new ConcurrentLinkedQueue<>();
-
+    // רק הסוכנים הפעילים
     private final Queue<Representative> activeAgents =
             new ConcurrentLinkedQueue<>();
 
@@ -49,15 +48,17 @@ public class InquiryManager
         this.representativeRepository = repRepo;
         this.representativeCodeRepository = repCodeRepo;
 
+        // טעינת פניות
         inquiriesQueue.addAll(inquiryRepository.readAll());
+
+        // טעינת קוד פניה הבא
         nextCodeVal.set(codeRepo.get());
 
+        // טעינת כל הסוכנים מהקובץ
         representativesQueue.addAll(repRepo.readAll());
-        representativeNextCode.set(repCodeRepo.get());
 
-        existingAgents.offer(new Representative("david", "111"));
-        existingAgents.offer(new Representative("moshe", "222"));
-        existingAgents.offer(new Representative("avi", "333"));
+        // טעינת קוד סוכן הבא
+        representativeNextCode.set(repCodeRepo.get());
     }
 
     public synchronized Inquiry addInquiry(Inquiry inquiry)
@@ -68,9 +69,11 @@ public class InquiryManager
         }
 
         int code = nextCodeVal.getAndIncrement();
+
         inquiry.setCode(code);
 
         inquiryRepository.create(inquiry);
+
         nextCodeValRepository.update(nextCodeVal.get());
 
         inquiriesQueue.offer(inquiry);
@@ -97,7 +100,11 @@ public class InquiryManager
 
         target.setStatus(INQUIRY_STATUS.CANCELED);
 
-        inquiryRepository.delete(target.getCode(), target.getType());
+        inquiryRepository.delete(
+                target.getCode(),
+                target.getType()
+        );
+
         archiveRepository.create(target);
 
         inquiriesQueue.remove(target);
@@ -110,7 +117,9 @@ public class InquiryManager
         return inquiryRepository.countByMonth(month);
     }
 
-    public synchronized Representative addRepresentative(Representative rep)
+    public synchronized Representative addRepresentative(
+            Representative rep
+    )
     {
         if (rep == null)
         {
@@ -118,17 +127,23 @@ public class InquiryManager
         }
 
         int code = representativeNextCode.getAndIncrement();
+
         rep.setEmployeeCode(code);
 
         representativesQueue.offer(rep);
 
         representativeRepository.saveAll(representativesQueue);
-        representativeCodeRepository.update(representativeNextCode.get());
+
+        representativeCodeRepository.update(
+                representativeNextCode.get()
+        );
 
         return rep;
     }
 
-    public synchronized boolean deleteRepresentative(int employeeCode)
+    public synchronized boolean deleteRepresentative(
+            int employeeCode
+    )
     {
         Representative target = null;
 
@@ -146,7 +161,11 @@ public class InquiryManager
             return false;
         }
 
+        // הסרה מכל הסוכנים
         representativesQueue.remove(target);
+
+        // אם פעיל - להסיר גם מהפעילים
+        activeAgents.remove(target);
 
         representativeRepository.saveAll(representativesQueue);
 
@@ -160,47 +179,58 @@ public class InquiryManager
 
     public boolean loginAgent(String id)
     {
-        int size = existingAgents.size();
-        boolean found = false;
-
-        for (int i = 0; i < size; i++)
+        for (Representative rep : representativesQueue)
         {
-            Representative current = existingAgents.poll();
+            if (rep.getId().equals(id))
+            {
+                boolean alreadyActive = false;
 
-            if (current != null && current.getId().equals(id))
-            {
-                activeAgents.offer(current);
-                found = true;
-            }
-            else if (current != null)
-            {
-                existingAgents.offer(current);
+                for (Representative activeRep : activeAgents)
+                {
+                    if (activeRep.getId().equals(id))
+                    {
+                        alreadyActive = true;
+                        break;
+                    }
+                }
+
+                if (!alreadyActive)
+                {
+                    activeAgents.offer(rep);
+                }
+
+                return true;
             }
         }
 
-        return found;
+        return false;
     }
 
     public boolean logoutAgent(String id)
     {
-        int size = activeAgents.size();
-        boolean found = false;
+        Representative target = null;
 
-        for (int i = 0; i < size; i++)
+        for (Representative rep : activeAgents)
         {
-            Representative current = activeAgents.poll();
-
-            if (current != null && current.getId().equals(id))
+            if (rep.getId().equals(id))
             {
-                existingAgents.offer(current);
-                found = true;
-            }
-            else if (current != null)
-            {
-                activeAgents.offer(current);
+                target = rep;
+                break;
             }
         }
 
-        return found;
+        if (target == null)
+        {
+            return false;
+        }
+
+        activeAgents.remove(target);
+
+        return true;
+    }
+
+    public List<Representative> getActiveAgents()
+    {
+        return new ArrayList<>(activeAgents);
     }
 }
