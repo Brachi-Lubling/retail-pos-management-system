@@ -19,9 +19,6 @@ public class InquiryManager
     private final Queue<Inquiry> inquiriesQueue =
             new ConcurrentLinkedQueue<>();
 
-    private final Queue<Representative> representativesQueue =
-            new ConcurrentLinkedQueue<>();
-
     private final Queue<Representative> existingAgents =
             new ConcurrentLinkedQueue<>();
 
@@ -52,7 +49,7 @@ public class InquiryManager
         inquiriesQueue.addAll(inquiryRepository.readAll());
         nextCodeVal.set(codeRepo.get());
 
-        representativesQueue.addAll(repRepo.readAll());
+        existingAgents.addAll(repRepo.readAll());
         representativeNextCode.set(repCodeRepo.get());
 
         existingAgents.offer(new Representative("david", "111"));
@@ -120,9 +117,9 @@ public class InquiryManager
         int code = representativeNextCode.getAndIncrement();
         rep.setEmployeeCode(code);
 
-        representativesQueue.offer(rep);
+        existingAgents.offer(rep);
 
-        representativeRepository.saveAll(representativesQueue);
+        representativeRepository.saveAll(existingAgents);
         representativeCodeRepository.update(representativeNextCode.get());
 
         return rep;
@@ -132,7 +129,7 @@ public class InquiryManager
     {
         Representative target = null;
 
-        for (Representative rep : representativesQueue)
+        for (Representative rep : existingAgents)
         {
             if (rep.getEmployeeCode() == employeeCode)
             {
@@ -146,16 +143,16 @@ public class InquiryManager
             return false;
         }
 
-        representativesQueue.remove(target);
+        existingAgents.remove(target);
 
-        representativeRepository.saveAll(representativesQueue);
+        representativeRepository.saveAll(existingAgents);
 
         return true;
     }
 
     public List<Representative> getAllRepresentatives()
     {
-        return new ArrayList<>(representativesQueue);
+        return new ArrayList<>(existingAgents);
     }
 
     public boolean loginAgent(String id)
