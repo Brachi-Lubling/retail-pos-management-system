@@ -19,9 +19,6 @@ public class InquiryManager
     private final Queue<Inquiry> inquiriesQueue =
             new ConcurrentLinkedQueue<>();
 
-    private final Queue<Representative> representativesQueue =
-            new ConcurrentLinkedQueue<>();
-
     private final Queue<Representative> existingAgents =
             new ConcurrentLinkedQueue<>();
 
@@ -58,6 +55,9 @@ public class InquiryManager
         existingAgents.offer(new Representative("david", "111"));
         existingAgents.offer(new Representative("moshe", "222"));
         existingAgents.offer(new Representative("avi", "333"));
+
+        startMatchingProcess();
+
     }
 
     public synchronized Inquiry addInquiry(Inquiry inquiry)
@@ -203,4 +203,44 @@ public class InquiryManager
 
         return found;
     }
+
+
+    private void startMatchingProcess() { Thread matchingThread = new Thread(() -> {
+        while (true) {
+
+            if (!inquiriesQueue.isEmpty() && !activeAgents.isEmpty()) {
+
+                Inquiry inquiry = inquiriesQueue.poll();
+                Representative representative = activeAgents.poll();
+
+                if (inquiry != null && representative != null) {
+                    assignInquiryToAgent(inquiry, representative);
+                }
+            }
+
+            try {
+                // השהיה קלה כדי לא להעמיס על המעבד
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+        matchingThread.setDaemon(true); // יסגר כשהתוכנית הראשית נסגרת
+        matchingThread.start();
+    }
+
+
+    private void assignInquiryToAgent(Inquiry inquiry,Representative representative) {
+        System.out.println("Assigning Inquiry " + inquiry.getCode() + " to Agent " + representative.getFirstName());
+
+        inquiry.setStatus(INQUIRY_STATUS.IN_PROGRESS);
+
+        representative.setCurrentInquiry(inquiry);
+
+        if (inquiryRepository != null) {
+            inquiryRepository.create(inquiry);
+        }
+    }
+
 }
