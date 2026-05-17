@@ -31,6 +31,8 @@ public class InquiryManager
     private final AtomicInteger representativeNextCode =
             new AtomicInteger();
 
+    private final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
+
     public InquiryManager(
             InquiryRepository inquiryRepository,
             InquiryRepository archiveRepository,
@@ -241,6 +243,26 @@ public class InquiryManager
         if (inquiryRepository != null) {
             inquiryRepository.create(inquiry);
         }
+
+        currentHandledInquiriesCount.incrementAndGet();
+
+        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(representative, this);
+        treatmentTask.start();
+    }
+
+    // פונקציית עזר שחברה שלך תקרא אליה כשה-Thread שלה מסתיים כדי להחזיר את הסוכן לתור
+    public void returnAgentToQueue(Representative representative) {
+        if (representative != null) {
+            activeAgents.add(representative);
+            // הפחתת המונה כי הטיפול בפנייה הסתיים
+            currentHandledInquiriesCount.decrementAndGet();
+            System.out.println("Rep " + representative.getFirstName() + " returned to queue.");
+        }
+    }
+
+    // מתודה המאפשרת למערכת לדעת בכל רגע נתון כמה פניות יש בטיפול (התשובה למרצה)
+    public int getNumberOfHandledInquiries() {
+        return currentHandledInquiriesCount.get();
     }
 
 }
