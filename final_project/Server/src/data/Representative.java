@@ -7,7 +7,6 @@ public class Representative implements Serializable
     private int employeeCode;
     private String firstName;
     private String id;
-    private Inquiry currentInquiry;
 
 
     public Representative()
@@ -35,13 +34,6 @@ public class Representative implements Serializable
         return id;
     }
 
-    public Inquiry getCurrentInquiry() {
-        return currentInquiry;
-    }
-
-    public void setCurrentInquiry(Inquiry currentInquiry) {
-        this.currentInquiry = currentInquiry;
-    }
     public void setEmployeeCode(int employeeCode)
     {
         this.employeeCode = employeeCode;
@@ -54,7 +46,6 @@ public class Representative implements Serializable
                 "employeeCode=" + employeeCode +
                 ", firstName='" + firstName + '\'' +
                 ", id='" + id + '\'' +
-                ", currentInquiry=" + (currentInquiry != null ? currentInquiry.getCode() : "None") +
                 '}';
     }
 }
