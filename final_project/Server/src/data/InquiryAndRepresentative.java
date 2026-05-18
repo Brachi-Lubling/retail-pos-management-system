@@ -1,10 +1,16 @@
 package data;
 
-public class InquiryAndRepresentative {
+import java.io.Serializable;
+
+public class InquiryAndRepresentative implements Serializable {
 
     private Representative currentrepresentative;
     private Inquiry currentInquiry;
 
+    public InquiryAndRepresentative(Representative currentrepresentative, Inquiry currentInquiry) {
+        this.currentrepresentative = currentrepresentative;
+        this.currentInquiry = currentInquiry;
+    }
     public Representative getCurrentrepresentative() {
         return currentrepresentative;
     }

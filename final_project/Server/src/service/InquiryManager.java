@@ -238,9 +238,7 @@ public class InquiryManager
 
         inquiry.setStatus(INQUIRY_STATUS.IN_PROGRESS);
 
-        InquiryAndRepresentative inquiryAndRepresentative = new InquiryAndRepresentative();
-        inquiryAndRepresentative.setCurrentInquiry(inquiry);
-        inquiryAndRepresentative.setCurrentrepresentative(representative);
+        InquiryAndRepresentative inquiryAndRepresentative = new InquiryAndRepresentative(representative, inquiry);
 
         if (inquiryRepository != null) {
             inquiryRepository.create(inquiry);
@@ -248,7 +246,7 @@ public class InquiryManager
 
         currentHandledInquiriesCount.incrementAndGet();
 
-        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(representative, this);
+        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
         treatmentTask.start();
     }
 
