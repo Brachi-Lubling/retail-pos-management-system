@@ -11,67 +11,52 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InquiryManager
 {
-    private final InquiryRepository inquiryRepository;
+    private final InquiryRepository dataRepository;
     private final InquiryRepository archiveRepository;
     private final NextCodeValRepository nextCodeValRepository;
 
     private final RepresentativeRepository representativeRepository;
     private final RepresentativeCodeRepository representativeCodeRepository;
 
-    private final Queue<Inquiry> inquiriesQueue =
-            new ConcurrentLinkedQueue<>();
+    private final Queue<Inquiry> inquiriesQueue = new ConcurrentLinkedQueue<>();
 
+    private final Queue<Representative> existingAgents = new ConcurrentLinkedQueue<>();
 
-    private final Queue<Representative> existingAgents =
-            new ConcurrentLinkedQueue<>();
+    private final Queue<Representative> activeAgents = new ConcurrentLinkedQueue<>();
 
-    // רק הסוכנים הפעילים
-    private final Queue<Representative> activeAgents =
-            new ConcurrentLinkedQueue<>();
+    private final AtomicInteger nextCodeVal = new AtomicInteger(0);
 
-    private final AtomicInteger nextCodeVal =
-            new AtomicInteger();
-
-    private final AtomicInteger representativeNextCode =
-            new AtomicInteger();
+    private final AtomicInteger representativeNextCode = new AtomicInteger(0);
 
     private final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
 
     public InquiryManager(
-            InquiryRepository inquiryRepository,
+            InquiryRepository dataRepository,
             InquiryRepository archiveRepository,
             NextCodeValRepository codeRepo,
             RepresentativeRepository repRepo,
             RepresentativeCodeRepository repCodeRepo
     )
     {
-        this.inquiryRepository = inquiryRepository;
+        this.dataRepository = dataRepository;
         this.archiveRepository = archiveRepository;
         this.nextCodeValRepository = codeRepo;
 
         this.representativeRepository = repRepo;
         this.representativeCodeRepository = repCodeRepo;
 
-        // טעינת פניות
-        inquiriesQueue.addAll(inquiryRepository.readAll());
-
-        // טעינת קוד פניה הבא
+        inquiriesQueue.addAll(dataRepository.readAll());
         nextCodeVal.set(codeRepo.get());
 
 
         existingAgents.addAll(repRepo.readAll());
         representativeNextCode.set(repCodeRepo.get());
 
-        existingAgents.offer(new Representative("david", "111"));
-        existingAgents.offer(new Representative("moshe", "222"));
-        existingAgents.offer(new Representative("avi", "333"));
-
         startMatchingProcess();
 
     }
 
-    public synchronized Inquiry addInquiry(Inquiry inquiry)
-    {
+    public synchronized Inquiry addInquiry(Inquiry inquiry){
         if (inquiry == null)
         {
             return null;
@@ -81,7 +66,7 @@ public class InquiryManager
 
         inquiry.setCode(code);
 
-        inquiryRepository.create(inquiry);
+        dataRepository.create(inquiry);
 
         nextCodeValRepository.update(nextCodeVal.get());
 
@@ -90,13 +75,11 @@ public class InquiryManager
         return inquiry;
     }
 
-    public List<Inquiry> getAllInquiries()
-    {
+    public List<Inquiry> getAllInquiries(){
         return new ArrayList<>(inquiriesQueue);
     }
 
-    public synchronized boolean cancelInquiry(int code)
-    {
+    public synchronized boolean cancelInquiry(int code){
         Inquiry target = inquiriesQueue.stream()
                 .filter(i -> i.getCode() == code)
                 .findFirst()
@@ -109,7 +92,7 @@ public class InquiryManager
 
         target.setStatus(INQUIRY_STATUS.CANCELED);
 
-        inquiryRepository.delete(
+        dataRepository.delete(
                 target.getCode(),
                 target.getType()
         );
@@ -121,15 +104,11 @@ public class InquiryManager
         return true;
     }
 
-    public int getInquiriesCountByMonth(int month)
-    {
-        return inquiryRepository.countByMonth(month);
+    public int getInquiriesCountByMonth(int month){
+        return dataRepository.countByMonth(month);
     }
 
-    public synchronized Representative addRepresentative(
-            Representative rep
-    )
-    {
+    public synchronized Representative addRepresentative( Representative rep ){
         if (rep == null)
         {
             return null;
@@ -148,10 +127,7 @@ public class InquiryManager
         return rep;
     }
 
-    public synchronized boolean deleteRepresentative(
-            int employeeCode
-    )
-    {
+    public synchronized boolean deleteRepresentative( int employeeCode ){
         Representative target = null;
 
 
@@ -181,7 +157,6 @@ public class InquiryManager
         return true;
     }
 
-
     public Response getInquiryStatus(String inquiryCode) {
 
         Inquiry archivedInquiry = archiveRepository.findByCode(inquiryCode);
@@ -205,7 +180,7 @@ public class InquiryManager
             );
         }
 
-        Inquiry activeInquiry = inquiryRepository.findByCode(inquiryCode);
+        Inquiry activeInquiry = dataRepository.findByCode(inquiryCode);
 
         if (activeInquiry != null) {
             return new Response(
@@ -222,13 +197,11 @@ public class InquiryManager
         );
     }
 
-
-
     public List<Representative> getAllRepresentatives() {
         return new ArrayList<>(existingAgents);
     }
-    public boolean loginAgent(String id)
-    {
+
+    public boolean loginAgent(String id){
         for (Representative rep : existingAgents )
         {
             if (rep.getId().equals(id))
@@ -256,8 +229,7 @@ public class InquiryManager
         return false;
     }
 
-    public boolean logoutAgent(String id)
-    {
+    public boolean logoutAgent(String id){
         Representative target = null;
 
         for (Representative rep : activeAgents)
@@ -279,13 +251,12 @@ public class InquiryManager
         return true;
     }
 
-    public List<Representative> getActiveAgents()
-    {
+    public List<Representative> getActiveAgents(){
         return new ArrayList<>(activeAgents);
     }
 
-
-    private void startMatchingProcess() { Thread matchingThread = new Thread(() -> {
+    private void startMatchingProcess() {
+        Thread matchingThread = new Thread(() -> {
         while (true) {
 
             if (!inquiriesQueue.isEmpty() && !activeAgents.isEmpty()) {
@@ -299,14 +270,13 @@ public class InquiryManager
             }
 
             try {
-                // השהיה קלה כדי לא להעמיס על המעבד
                 Thread.sleep(500);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
     });
-        matchingThread.setDaemon(true); // יסגר כשהתוכנית הראשית נסגרת
+        matchingThread.setDaemon(true);
         matchingThread.start();
     }
 
@@ -317,10 +287,6 @@ public class InquiryManager
         inquiry.setStatus(INQUIRY_STATUS.IN_PROGRESS);
 
         InquiryAndRepresentative inquiryAndRepresentative = new InquiryAndRepresentative(representative, inquiry);
-
-        if (inquiryRepository != null) {
-            inquiryRepository.create(inquiry);
-        }
 
         currentHandledInquiriesCount.incrementAndGet();
 
