@@ -19,8 +19,8 @@ public class InquiryManager
     private final Queue<Inquiry> inquiriesQueue =
             new ConcurrentLinkedQueue<>();
 
-    // כל הסוכנים במערכת
-    private final Queue<Representative> existingAgents  =
+
+    private final Queue<Representative> existingAgents =
             new ConcurrentLinkedQueue<>();
 
     // רק הסוכנים הפעילים
@@ -32,6 +32,8 @@ public class InquiryManager
 
     private final AtomicInteger representativeNextCode =
             new AtomicInteger();
+
+    private final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
 
     public InquiryManager(
             InquiryRepository inquiryRepository,
@@ -54,11 +56,16 @@ public class InquiryManager
         // טעינת קוד פניה הבא
         nextCodeVal.set(codeRepo.get());
 
-        // טעינת כל הסוכנים מהקובץ
-        existingAgents .addAll(repRepo.readAll());
 
-        // טעינת קוד סוכן הבא
+        existingAgents.addAll(repRepo.readAll());
         representativeNextCode.set(repCodeRepo.get());
+
+        existingAgents.offer(new Representative("david", "111"));
+        existingAgents.offer(new Representative("moshe", "222"));
+        existingAgents.offer(new Representative("avi", "333"));
+
+        startMatchingProcess();
+
     }
 
     public synchronized Inquiry addInquiry(Inquiry inquiry)
@@ -130,13 +137,11 @@ public class InquiryManager
 
         rep.setEmployeeCode(code);
 
-        existingAgents .offer(rep);
 
-        representativeRepository.saveAll(existingAgents );
+        existingAgents.offer(rep);
 
-        representativeCodeRepository.update(
-                representativeNextCode.get()
-        );
+        representativeRepository.saveAll(existingAgents);
+        representativeCodeRepository.update(representativeNextCode.get());
 
         return rep;
     }
@@ -147,7 +152,8 @@ public class InquiryManager
     {
         Representative target = null;
 
-        for (Representative rep : existingAgents )
+
+        for (Representative rep : existingAgents)
         {
             if (rep.getEmployeeCode() == employeeCode)
             {
@@ -160,6 +166,7 @@ public class InquiryManager
         {
             return false;
         }
+
 
         // הסרה מכל הסוכנים
         existingAgents .remove(target);
@@ -174,7 +181,7 @@ public class InquiryManager
 
     public List<Representative> getAllRepresentatives()
     {
-        return new ArrayList<>(existingAgents );
+        return new ArrayList<>(existingAgents);
     }
 
     public boolean loginAgent(String id)
@@ -233,4 +240,64 @@ public class InquiryManager
     {
         return new ArrayList<>(activeAgents);
     }
+
+
+    private void startMatchingProcess() { Thread matchingThread = new Thread(() -> {
+        while (true) {
+
+            if (!inquiriesQueue.isEmpty() && !activeAgents.isEmpty()) {
+
+                Inquiry inquiry = inquiriesQueue.poll();
+                Representative representative = activeAgents.poll();
+
+                if (inquiry != null && representative != null) {
+                    assignInquiryToAgent(inquiry, representative);
+                }
+            }
+
+            try {
+                // השהיה קלה כדי לא להעמיס על המעבד
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    });
+        matchingThread.setDaemon(true); // יסגר כשהתוכנית הראשית נסגרת
+        matchingThread.start();
+    }
+
+
+    private void assignInquiryToAgent(Inquiry inquiry,Representative representative) {
+        System.out.println("Assigning Inquiry " + inquiry.getCode() + " to Agent " + representative.getFirstName());
+
+        inquiry.setStatus(INQUIRY_STATUS.IN_PROGRESS);
+
+        InquiryAndRepresentative inquiryAndRepresentative = new InquiryAndRepresentative(representative, inquiry);
+
+        if (inquiryRepository != null) {
+            inquiryRepository.create(inquiry);
+        }
+
+        currentHandledInquiriesCount.incrementAndGet();
+
+        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
+        treatmentTask.start();
+    }
+
+    // פונקציית עזר שחברה שלך תקרא אליה כשה-Thread שלה מסתיים כדי להחזיר את הסוכן לתור
+    public void returnAgentToQueue(Representative representative) {
+        if (representative != null) {
+            activeAgents.add(representative);
+            // הפחתת המונה כי הטיפול בפנייה הסתיים
+            currentHandledInquiriesCount.decrementAndGet();
+            System.out.println("Rep " + representative.getFirstName() + " returned to queue.");
+        }
+    }
+
+    // מתודה המאפשרת למערכת לדעת בכל רגע נתון כמה פניות יש בטיפול (התשובה למרצה)
+    public int getNumberOfHandledInquiries() {
+        return currentHandledInquiriesCount.get();
+    }
+
 }

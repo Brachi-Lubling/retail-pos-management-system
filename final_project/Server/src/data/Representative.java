@@ -8,6 +8,7 @@ public class Representative implements Serializable
     private String firstName;
     private String id;
 
+
     public Representative()
     {
     }
