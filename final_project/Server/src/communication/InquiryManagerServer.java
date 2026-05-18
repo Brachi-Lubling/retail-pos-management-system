@@ -2,8 +2,11 @@ package communication;
 
 import repository.InquiryRepository;
 import repository.NextCodeValRepository;
+import repository.RepresentativeCodeRepository;
+import repository.RepresentativeRepository;
 import service.InquiryManager;
 
+import java.io.File;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -22,8 +25,15 @@ public class InquiryManagerServer {
 
     public void startServer() {
 
+        InquiryRepository dataRepository = new InquiryRepository(new File("data"));
+        InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
+        NextCodeValRepository codeRepo = new NextCodeValRepository();
+
+        RepresentativeRepository repRepo = new RepresentativeRepository();
+        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
+
         InquiryManager manager =
-                new InquiryManager(new InquiryRepository(), new NextCodeValRepository());
+                 InquiryManager.getInstance(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
 
         while (true) {
 

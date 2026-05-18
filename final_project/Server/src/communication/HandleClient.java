@@ -8,72 +8,199 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-public class HandleClient extends Thread {
-
+public class HandleClient extends Thread
+{
     private Socket clientSocket;
     private InquiryManager inquiryManager;
 
-    public HandleClient(Socket clientSocket, InquiryManager inquiryManager) {
+    public HandleClient(Socket clientSocket, InquiryManager inquiryManager)
+    {
         this.clientSocket = clientSocket;
         this.inquiryManager = inquiryManager;
     }
 
     @Override
-    public void run() {
-
+    public void run()
+    {
         try (
-                ObjectOutputStream out = new ObjectOutputStream(clientSocket.getOutputStream());
-                ObjectInputStream in = new ObjectInputStream(clientSocket.getInputStream())
-        ) {
+                ObjectOutputStream out =
+                        new ObjectOutputStream(clientSocket.getOutputStream());
 
-            while (true) {
+                ObjectInputStream in =
+                        new ObjectInputStream(clientSocket.getInputStream())
+        )
+        {
+            while (true)
+            {
+                RequestComm request =
+                        (RequestComm) in.readObject();
 
-                RequestComm request = (RequestComm) in.readObject();
+                Object result =
+                        handleActionRequest(request);
 
-                Object result = handleActionRequest(request);
-
-                Response response = createResponse(result);
+                Response response =
+                        createResponse(result);
 
                 out.writeObject(response);
                 out.flush();
             }
-
-        } catch (Exception e) {
-            System.out.println("client disconnected: " + e.getClass().getSimpleName());
-        } finally {
-            try {
+        }
+        catch (Exception e)
+        {
+            System.out.println("client disconnected: " +
+                    e.getClass().getSimpleName());
+        }
+        finally
+        {
+            try
+            {
                 clientSocket.close();
-            } catch (Exception e) {
+            }
+            catch (Exception e)
+            {
                 e.printStackTrace();
             }
         }
     }
 
-    private Object handleActionRequest(RequestComm request) {
-
-        if (request == null || request.getAction() == null) {
+    private Object handleActionRequest(RequestComm request)
+    {
+        if (request == null || request.getAction() == null)
+        {
             return null;
         }
 
-        switch (request.getAction()) {
-
+        switch (request.getAction())
+        {
             case ALL_INQUIRY:
                 return inquiryManager.getAllInquiries();
 
             case ADD_INQUIRY:
-                return inquiryManager.addInquiry(request.getData());
 
+            {
+                Object[] data =(Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                {
+                    return null;
+                }
+
+                Inquiry inquiry =
+                        (Inquiry) data[0];
+
+                return inquiryManager.addInquiry(inquiry);
+            }
+
+            case GET_INQUIRIES_COUNT_BY_MONTH:
+            {
+                Object[] data =
+                        (Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                {
+                    return null;
+                }
+
+                int month = (Integer) data[0];
+
+                return inquiryManager.getInquiriesCountByMonth(month);
+            }
+
+            case AGENT_LOGIN:
+            {
+                Object[] data = (Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                    return new Response(null, ResponseStatus.FAIL, "invalid request");
+
+                String id = (String) data[0];
+
+                boolean success = inquiryManager.loginAgent(id);
+
+                if (success)
+                    return new Response(true, ResponseStatus.SUCCESS, "agent logged in");
+                else
+                    return new Response(null, ResponseStatus.FAIL, "agent id not found");
+            }
+
+            case AGENT_LOGOUT:
+            {
+                Object[] data = (Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                    return new Response(null, ResponseStatus.FAIL, "invalid request");
+
+                String id = (String) data[0];
+
+                boolean success = inquiryManager.logoutAgent(id);
+
+                if (success)
+                    return new Response(true, ResponseStatus.SUCCESS, "agent logged out");
+                else
+                    return new Response(null, ResponseStatus.FAIL, "agent id not found");
+            }
+
+            case CANCEL_INQUIRY:
+            {
+                Object[] data =
+                        (Object[]) request.getData();
+
+                if (data == null || data.length == 0)
+                    return null;
+
+                Object value = data[0];
+
+                if (!(value instanceof Integer))
+                {
+                    System.out.println(
+                            "ERROR: expected Integer but got " +
+                                    (value == null ? "null" : value.getClass().getSimpleName())
+                    );
+                    return null;
+                }
+
+                int code = (Integer) value;
+
+                return inquiryManager.cancelInquiry(code);
+            }
+            case GET_INQUIRY_STATUS: {
+                Object[] statusData = (Object[]) request.getData();
+
+                if (statusData == null || statusData.length == 0) {
+                    return null;
+                }
+
+                String inquiryCode = (String) statusData[0];
+
+                return inquiryManager.getInquiryStatus(inquiryCode);
+            }
             default:
                 return null;
         }
     }
 
-    private Response createResponse(Object result) {
-
-        if (result == null) {
-            return new Response(null, ResponseStatus.FAIL, "operation failed");
+    private Response createResponse(Object result)
+    {
+        if (result == null)
+        {
+            return new Response(
+                    null,
+                    ResponseStatus.FAIL,
+                    "operation failed"
+            );
         }
 
-        return new Response(result, ResponseStatus.SUCCESS, "ok");
+        if (result instanceof Boolean)
+        {
+            return ((Boolean) result)
+                    ? new Response(true, ResponseStatus.SUCCESS, "ok")
+                    : new Response(null, ResponseStatus.FAIL, "operation failed");
+        }
+
+        return new Response(
+                result,
+                ResponseStatus.SUCCESS,
+                "ok"
+        );
     }
 }

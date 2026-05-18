@@ -3,13 +3,19 @@ package repository;
 import data.Inquiry;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 public class InquiryRepository {
 
-    File folder = new File("data");
+    private final File folder;
+
+    public InquiryRepository(File folder) {
+        this.folder = folder;
+        folder.mkdir();
+    }
 
     public Collection<Inquiry> readAll() {
 
@@ -70,5 +76,85 @@ public class InquiryRepository {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public boolean delete(int code, String type) {
+        File file = new File(folder, type.toLowerCase() + "/" + code + ".bin");
+        return file.exists() && file.delete();
+    }
+
+    public int countByMonth(int month)
+    {
+        int count = 0;
+
+        String[] folders = {
+                "data/request",
+                "data/complaint",
+                "data/question",
+                "data/history"
+        };
+
+        for (String path : folders)
+        {
+            File folder = new File(path);
+
+            File[] files = folder.listFiles();
+
+            if (files == null)
+                continue;
+
+            for (File file : files)
+            {
+                if (!file.isFile())
+                    continue;
+
+                LocalDate date = readDate(file);
+
+                if (date != null && date.getMonthValue() == month)
+                {
+                    count++;
+                }
+            }
+        }
+
+        return count;
+    }
+
+
+    private LocalDate readDate(File file) {
+        try (ObjectInputStream in =
+                     new ObjectInputStream(new FileInputStream(file))) {
+
+            Inquiry inquiry = (Inquiry) in.readObject();
+
+            return inquiry.getCreationDate().toLocalDate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public Inquiry findByCode(String inquiryCode) {
+        File[] typeFolders = folder.listFiles(File::isDirectory);
+
+        if (typeFolders == null) {
+            return null;
+        }
+
+        for (File typeFolder : typeFolders) {
+
+            File file = new File(typeFolder, inquiryCode + ".bin");
+
+            if (file.exists() && file.isFile()) {
+                try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+                    return (Inquiry) in.readObject();
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Error reading inquiry file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
     }
 }
