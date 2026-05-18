@@ -134,4 +134,27 @@ public class InquiryRepository {
             return null;
         }
     }
+
+    public Inquiry findByCode(String inquiryCode) {
+        File[] typeFolders = folder.listFiles(File::isDirectory);
+
+        if (typeFolders == null) {
+            return null;
+        }
+
+        for (File typeFolder : typeFolders) {
+
+            File file = new File(typeFolder, inquiryCode + ".bin");
+
+            if (file.exists() && file.isFile()) {
+                try (ObjectInputStream in = new ObjectInputStream(new FileInputStream(file))) {
+                    return (Inquiry) in.readObject();
+                } catch (IOException | ClassNotFoundException e) {
+                    System.err.println("Error reading inquiry file: " + file.getName());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return null;
+    }
 }
