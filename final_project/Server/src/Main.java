@@ -29,7 +29,7 @@ public class Main {
         RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
 
         InquiryManager manager =
-                new InquiryManager(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
+                InquiryManager.getInstance(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
 
 
         if (mode == 1) {

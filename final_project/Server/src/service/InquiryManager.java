@@ -11,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class InquiryManager
 {
+    private static volatile InquiryManager instance;
+
     private final InquiryRepository dataRepository;
     private final InquiryRepository archiveRepository;
     private final NextCodeValRepository nextCodeValRepository;
@@ -30,7 +32,35 @@ public class InquiryManager
 
     private final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
 
-    public InquiryManager(
+
+    public static InquiryManager getInstance(
+            InquiryRepository dataRepository,
+            InquiryRepository archiveRepository,
+            NextCodeValRepository codeRepo,
+            RepresentativeRepository repRepo,
+            RepresentativeCodeRepository repCodeRepo
+    ) {
+        if (instance == null) {
+            synchronized (InquiryManager.class) {
+                if (instance == null) {
+                    instance = new InquiryManager(
+                            dataRepository, archiveRepository,
+                            codeRepo, repRepo, repCodeRepo
+                    );
+                }
+            }
+        }
+        return instance;
+    }
+
+    public static InquiryManager getInstance() {
+        if (instance == null) {
+            throw new IllegalStateException("InquiryManager was not initialized yet.");
+        }
+        return instance;
+    }
+
+    private InquiryManager(
             InquiryRepository dataRepository,
             InquiryRepository archiveRepository,
             NextCodeValRepository codeRepo,
@@ -290,8 +320,8 @@ public class InquiryManager
 
         currentHandledInquiriesCount.incrementAndGet();
 
-        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
-        treatmentTask.start();
+//        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
+//        treatmentTask.start();
     }
 
     // פונקציית עזר שחברה שלך תקרא אליה כשה-Thread שלה מסתיים כדי להחזיר את הסוכן לתור
