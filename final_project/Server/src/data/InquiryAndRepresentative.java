@@ -1,8 +1,10 @@
 package data;
 
+import service.InquiryManager;
+
 import java.io.Serializable;
 
-public class InquiryAndRepresentative implements Serializable {
+public class InquiryAndRepresentative extends Thread implements Serializable {
 
     private Representative currentrepresentative;
     private Inquiry currentInquiry;
@@ -25,5 +27,13 @@ public class InquiryAndRepresentative implements Serializable {
 
     public void setCurrentInquiry(Inquiry currentInquiry) {
         this.currentInquiry = currentInquiry;
+    }
+
+    @Override
+    public void run() {
+        handling();
+        InquiryManager.getInstance().insertRepresentativeToActiveAgentsQueue(currentrepresentative);
+        InquiryManager.getInstance().closeInquiry();
+        InquiryManager.getInstance().decreaseActiveInquiriesCounter();
     }
 }

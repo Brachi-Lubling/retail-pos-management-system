@@ -86,6 +86,10 @@ public class InquiryManager
 
     }
 
+    public synchronized void insertRepresentativeToActiveAgentsQueue(Representative rep){
+        activeAgents.offer(rep);
+    }
+
     public synchronized Inquiry addInquiry(Inquiry inquiry){
         if (inquiry == null)
         {
@@ -319,6 +323,7 @@ public class InquiryManager
         InquiryAndRepresentative inquiryAndRepresentative = new InquiryAndRepresentative(representative, inquiry);
 
         currentHandledInquiriesCount.incrementAndGet();
+
 
 //        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
 //        treatmentTask.start();
