@@ -86,9 +86,6 @@ public class InquiryManager
 
     }
 
-    public synchronized void insertRepresentativeToActiveAgentsQueue(Representative rep){
-        activeAgents.offer(rep);
-    }
 
     public synchronized Inquiry addInquiry(Inquiry inquiry){
         if (inquiry == null)
