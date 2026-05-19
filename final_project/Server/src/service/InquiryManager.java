@@ -357,4 +357,8 @@ public class InquiryManager
 
         return true;
     }
+
+    public int decreaseActiveInquiriesCounter() {
+        return currentHandledInquiriesCount.decrementAndGet();
+    }
 }
