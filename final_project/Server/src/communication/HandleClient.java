@@ -170,7 +170,7 @@ public class HandleClient extends Thread
                     return null;
                 }
 
-                String inquiryCode = (String) statusData[0];
+                String inquiryCode = String.valueOf(statusData[0]);
 
                 return inquiryManager.getInquiryStatus(inquiryCode);
             }
@@ -190,6 +190,10 @@ public class HandleClient extends Thread
             );
         }
 
+        if (result instanceof Response)
+        {
+            return (Response) result;
+        }
         if (result instanceof Boolean)
         {
             return ((Boolean) result)

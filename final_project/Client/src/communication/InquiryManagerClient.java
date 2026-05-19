@@ -191,9 +191,9 @@ public class InquiryManagerClient
     {
         System.out.println("insert inquiry id to get it status");
 
-        int id = scanner.nextInt();
+        String id = scanner.nextLine();
 
-        scanner.nextLine();
+//        scanner.nextLine();
 
         createCommunication(
                 InquiryManagerActions.GET_INQUIRY_STATUS,
