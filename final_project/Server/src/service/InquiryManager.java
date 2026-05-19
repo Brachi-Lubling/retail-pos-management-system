@@ -344,4 +344,17 @@ public class InquiryManager
         return currentHandledInquiriesCount.get();
     }
 
+    public boolean closeInquiry(Inquiry target) {
+
+        target.setStatus(INQUIRY_STATUS.DONE);
+
+        dataRepository.delete(
+                target.getCode(),
+                target.getType()
+        );
+
+        archiveRepository.create(target);
+
+        return true;
+    }
 }
