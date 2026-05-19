@@ -85,26 +85,33 @@ public class InquiryRepository {
 
     public int countByMonth(int month)
     {
-        File dataFolder = new File("data");
+        if (folder == null || !folder.exists())
+        {
+            return 0;
+        }
 
-        return countFilesByMonth(dataFolder, month);
+        return countFilesByMonth(folder, month);
     }
 
-    private int countFilesByMonth(File dataFolder, int month)
+    private int countFilesByMonth(File mainFolder, int month)
     {
         int count = 0;
 
-        File[] folders = dataFolder.listFiles();
+        File[] subFolders = mainFolder.listFiles();
 
-        if (folders == null)
-            return 0;
-
-        for (File folder : folders)
+        if (subFolders == null)
         {
-            if (!folder.isDirectory())
-                continue;
+            return 0;
+        }
 
-            count += countFilesInFolder(folder, month);
+        for (File subFolder : subFolders)
+        {
+            if (!subFolder.isDirectory())
+            {
+                continue;
+            }
+
+            count += countFilesInFolder(subFolder, month);
         }
 
         return count;
@@ -117,16 +124,20 @@ public class InquiryRepository {
         File[] files = folder.listFiles();
 
         if (files == null)
+        {
             return 0;
+        }
 
         for (File file : files)
         {
             if (!file.isFile())
+            {
                 continue;
+            }
 
             LocalDate date = readDate(file);
 
-            if (isSameMonth(date, month))
+            if (date != null && date.getMonthValue() == month)
             {
                 count++;
             }
@@ -134,7 +145,6 @@ public class InquiryRepository {
 
         return count;
     }
-
     private boolean isSameMonth(LocalDate date, int month)
     {
         return date != null &&
