@@ -136,7 +136,7 @@ public class InquiryManager
     }
 
     public int getInquiriesCountByMonth(int month){
-        return dataRepository.countByMonth(month);
+        return dataRepository.countByMonth(month)+archiveRepository.countByMonth(month);
     }
 
     public synchronized Representative addRepresentative( Representative rep ){
