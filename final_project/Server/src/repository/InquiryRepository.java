@@ -85,42 +85,61 @@ public class InquiryRepository {
 
     public int countByMonth(int month)
     {
+        File dataFolder = new File("data");
+
+        return countFilesByMonth(dataFolder, month);
+    }
+
+    private int countFilesByMonth(File dataFolder, int month)
+    {
         int count = 0;
 
-        String[] folders = {
-                "data/request",
-                "data/complaint",
-                "data/question",
-                "data/history"
-        };
+        File[] folders = dataFolder.listFiles();
 
-        for (String path : folders)
+        if (folders == null)
+            return 0;
+
+        for (File folder : folders)
         {
-            File folder = new File(path);
-
-            File[] files = folder.listFiles();
-
-            if (files == null)
+            if (!folder.isDirectory())
                 continue;
 
-            for (File file : files)
+            count += countFilesInFolder(folder, month);
+        }
+
+        return count;
+    }
+
+    private int countFilesInFolder(File folder, int month)
+    {
+        int count = 0;
+
+        File[] files = folder.listFiles();
+
+        if (files == null)
+            return 0;
+
+        for (File file : files)
+        {
+            if (!file.isFile())
+                continue;
+
+            LocalDate date = readDate(file);
+
+            if (isSameMonth(date, month))
             {
-                if (!file.isFile())
-                    continue;
-
-                LocalDate date = readDate(file);
-
-                if (date != null && date.getMonthValue() == month)
-                {
-                    count++;
-                }
+                count++;
             }
         }
 
         return count;
     }
 
-
+    private boolean isSameMonth(LocalDate date, int month)
+    {
+        return date != null &&
+                date.getMonthValue() == month;
+    }
     private LocalDate readDate(File file) {
         try (ObjectInputStream in =
                      new ObjectInputStream(new FileInputStream(file))) {
