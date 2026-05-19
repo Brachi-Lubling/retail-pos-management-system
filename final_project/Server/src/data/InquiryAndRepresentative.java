@@ -36,7 +36,6 @@ public class InquiryAndRepresentative extends Thread implements Serializable {
         } finally {
             InquiryManager.getInstance().returnAgentToQueue(currentRepresentative);
             InquiryManager.getInstance().closeInquiry(currentInquiry);
-            InquiryManager.getInstance().decreaseActiveInquiriesCounter();
         }
     }
 

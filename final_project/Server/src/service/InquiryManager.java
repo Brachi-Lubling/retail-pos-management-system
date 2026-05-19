@@ -323,11 +323,6 @@ public class InquiryManager
         }
     }
 
-    // מתודה המאפשרת למערכת לדעת בכל רגע נתון כמה פניות יש בטיפול (התשובה למרצה)
-    public int getNumberOfHandledInquiries() {
-        return currentHandledInquiriesCount.get();
-    }
-
     public boolean closeInquiry(Inquiry target) {
 
         target.setStatus(INQUIRY_STATUS.DONE);
@@ -342,7 +337,4 @@ public class InquiryManager
         return true;
     }
 
-    public int decreaseActiveInquiriesCounter() {
-        return currentHandledInquiriesCount.decrementAndGet();
-    }
 }
