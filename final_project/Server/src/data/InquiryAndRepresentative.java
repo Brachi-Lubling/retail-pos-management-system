@@ -47,9 +47,9 @@ public class InquiryAndRepresentative extends Thread implements Serializable {
                 this.setPriority(Thread.MIN_PRIORITY);
 
             if (currentInquiry instanceof Request)
-                Thread.sleep(3000);
+                Thread.sleep(20000);
             else
-                Thread.sleep(5000);
+                Thread.sleep(20000);
             currentInquiry.handling();
 
 
