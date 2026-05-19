@@ -321,9 +321,8 @@ public class InquiryManager
 
         currentHandledInquiriesCount.incrementAndGet();
 
+        inquiryAndRepresentative.start();
 
-//        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
-//        treatmentTask.start();
     }
 
     // פונקציית עזר שחברה שלך תקרא אליה כשה-Thread שלה מסתיים כדי להחזיר את הסוכן לתור
