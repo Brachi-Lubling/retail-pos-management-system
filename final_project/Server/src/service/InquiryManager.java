@@ -26,9 +26,8 @@ public class InquiryManager
 
     private final AtomicInteger nextCodeVal = new AtomicInteger(0);
 
-    private final AtomicInteger representativeNextCode = new AtomicInteger(0);
 
-    private final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
+    public final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
 
 
     public static InquiryManager getInstance(

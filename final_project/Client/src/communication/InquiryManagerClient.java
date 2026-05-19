@@ -75,6 +75,7 @@ public class InquiryManagerClient
                             "2-get count by month, " +
                             "3-get inquiry status," +
                             "4-cancel inquiry " +
+                            "5-get current handled inquiries count"+
                             "0-exit"
             );
 
@@ -104,7 +105,8 @@ public class InquiryManagerClient
                 case 4:
                     cancelInquiry();
                     break;
-
+                case 5:
+                    getCurrentHandledInquiriesCount();
                 case 0:
 
                     return;
@@ -114,6 +116,10 @@ public class InquiryManagerClient
                     System.out.println("the number is not valid");
             }
         }
+    }
+
+    private void getCurrentHandledInquiriesCount() {
+        createCommunication(InquiryManagerActions.GET_CURRENT_HANDLED_INQUIRIES_COUNT);
     }
 
     private void cancelInquiry()

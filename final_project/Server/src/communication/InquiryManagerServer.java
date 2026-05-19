@@ -26,10 +26,10 @@ public class InquiryManagerServer {
 
         InquiryRepository dataRepository = new InquiryRepository(new File("data"));
         InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
-//        NextCodeValRepository codeRepo = new NextCodeValRepository();
+
 
         RepresentativeRepository repRepo = new RepresentativeRepository();
-//        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
+
 
         InquiryManager manager =
                  InquiryManager.getInstance(dataRepository,archiveRepository, repRepo);

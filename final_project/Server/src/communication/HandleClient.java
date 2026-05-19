@@ -174,6 +174,8 @@ public class HandleClient extends Thread
 
                 return inquiryManager.getInquiryStatus(inquiryCode);
             }
+            case GET_CURRENT_HANDLED_INQUIRIES_COUNT:
+                return inquiryManager.currentHandledInquiriesCount;
             default:
                 return null;
         }
