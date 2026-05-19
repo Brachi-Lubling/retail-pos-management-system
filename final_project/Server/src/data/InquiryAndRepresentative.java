@@ -6,19 +6,19 @@ import java.io.Serializable;
 
 public class InquiryAndRepresentative extends Thread implements Serializable {
 
-    private Representative currentrepresentative;
+    private Representative currentRepresentative;
     private Inquiry currentInquiry;
 
     public InquiryAndRepresentative(Representative currentrepresentative, Inquiry currentInquiry) {
-        this.currentrepresentative = currentrepresentative;
+        this.currentRepresentative = currentrepresentative;
         this.currentInquiry = currentInquiry;
     }
-    public Representative getCurrentrepresentative() {
-        return currentrepresentative;
+    public Representative getCurrentRepresentative() {
+        return currentRepresentative;
     }
 
-    public void setCurrentrepresentative(Representative currentrepresentative) {
-        this.currentrepresentative = currentrepresentative;
+    public void setCurrentRepresentative(Representative currentRepresentative) {
+        this.currentRepresentative = currentRepresentative;
     }
 
     public Inquiry getCurrentInquiry() {
@@ -31,10 +31,13 @@ public class InquiryAndRepresentative extends Thread implements Serializable {
 
     @Override
     public void run() {
-        handling();
-        InquiryManager.getInstance().insertRepresentativeToActiveAgentsQueue(currentrepresentative);
-        InquiryManager.getInstance().closeInquiry(currentInquiry);
-        InquiryManager.getInstance().decreaseActiveInquiriesCounter();
+        try {
+            handling();
+        } finally {
+            InquiryManager.getInstance().insertRepresentativeToActiveAgentsQueue(currentRepresentative);
+            InquiryManager.getInstance().closeInquiry(currentInquiry);
+            InquiryManager.getInstance().decreaseActiveInquiriesCounter();
+        }
     }
 
     private void handling() {
