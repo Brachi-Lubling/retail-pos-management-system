@@ -205,7 +205,7 @@ public class InquiryManager
 
         if (isPending) {
             return new Response(
-                    "OPEN",
+                    INQUIRY_STATUS.OPEN,
                     ResponseStatus.SUCCESS,
                     "Inquiry is pending in queue"
             );
@@ -215,7 +215,7 @@ public class InquiryManager
 
         if (activeInquiry != null) {
             return new Response(
-                    "IN_PROGRESS",
+                    INQUIRY_STATUS.IN_PROGRESS,
                     ResponseStatus.SUCCESS,
                     "Inquiry is currently being handled"
             );
