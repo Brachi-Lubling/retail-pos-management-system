@@ -23,13 +23,13 @@ public class Main {
 
         InquiryRepository dataRepository = new InquiryRepository(new File("data"));
         InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
-        NextCodeValRepository codeRepo = new NextCodeValRepository();
+//        NextCodeValRepository codeRepo = new NextCodeValRepository();
 
         RepresentativeRepository repRepo = new RepresentativeRepository();
-        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
+//        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
 
         InquiryManager manager =
-                InquiryManager.getInstance(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
+                InquiryManager.getInstance(dataRepository,archiveRepository, repRepo);
 
 
         if (mode == 1) {
@@ -72,7 +72,7 @@ public class Main {
                     String name = scanner.next();
 
                     System.out.println("ID:");
-                    String id = scanner.next();
+                    int id = scanner.nextInt();
 
                     Representative rep = new Representative(name, id);
 

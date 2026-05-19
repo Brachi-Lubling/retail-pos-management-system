@@ -113,7 +113,7 @@ public class HandleClient extends Thread
                 if (data == null || data.length == 0)
                     return new Response(null, ResponseStatus.FAIL, "invalid request");
 
-                String id = (String) data[0];
+                int id = (int) data[0];
 
                 boolean success = inquiryManager.loginAgent(id);
 
@@ -130,7 +130,7 @@ public class HandleClient extends Thread
                 if (data == null || data.length == 0)
                     return new Response(null, ResponseStatus.FAIL, "invalid request");
 
-                String id = (String) data[0];
+                int id =(int) data[0];
 
                 boolean success = inquiryManager.logoutAgent(id);
 

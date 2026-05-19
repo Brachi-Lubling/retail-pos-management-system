@@ -15,10 +15,8 @@ public class InquiryManager
 
     private final InquiryRepository dataRepository;
     private final InquiryRepository archiveRepository;
-    private final NextCodeValRepository nextCodeValRepository;
 
     private final RepresentativeRepository representativeRepository;
-    private final RepresentativeCodeRepository representativeCodeRepository;
 
     private final Queue<Inquiry> inquiriesQueue = new ConcurrentLinkedQueue<>();
 
@@ -36,16 +34,15 @@ public class InquiryManager
     public static InquiryManager getInstance(
             InquiryRepository dataRepository,
             InquiryRepository archiveRepository,
-            NextCodeValRepository codeRepo,
-            RepresentativeRepository repRepo,
-            RepresentativeCodeRepository repCodeRepo
+            RepresentativeRepository repRepo
+
     ) {
         if (instance == null) {
             synchronized (InquiryManager.class) {
                 if (instance == null) {
                     instance = new InquiryManager(
                             dataRepository, archiveRepository,
-                            codeRepo, repRepo, repCodeRepo
+                            repRepo
                     );
                 }
             }
@@ -63,24 +60,20 @@ public class InquiryManager
     private InquiryManager(
             InquiryRepository dataRepository,
             InquiryRepository archiveRepository,
-            NextCodeValRepository codeRepo,
-            RepresentativeRepository repRepo,
-            RepresentativeCodeRepository repCodeRepo
+            RepresentativeRepository repRepo
+
     )
     {
         this.dataRepository = dataRepository;
         this.archiveRepository = archiveRepository;
-        this.nextCodeValRepository = codeRepo;
-
         this.representativeRepository = repRepo;
-        this.representativeCodeRepository = repCodeRepo;
+
 
         inquiriesQueue.addAll(dataRepository.readAll());
-        nextCodeVal.set(codeRepo.get());
+
 
 
         existingAgents.addAll(repRepo.readAll());
-        representativeNextCode.set(repCodeRepo.get());
 
         startMatchingProcess();
 
@@ -99,7 +92,6 @@ public class InquiryManager
 
         dataRepository.create(inquiry);
 
-        nextCodeValRepository.update(nextCodeVal.get());
 
         inquiriesQueue.offer(inquiry);
 
@@ -145,15 +137,12 @@ public class InquiryManager
             return null;
         }
 
-        int code = representativeNextCode.getAndIncrement();
 
-        rep.setEmployeeCode(code);
 
 
         existingAgents.offer(rep);
 
         representativeRepository.saveAll(existingAgents);
-        representativeCodeRepository.update(representativeNextCode.get());
 
         return rep;
     }
@@ -164,7 +153,7 @@ public class InquiryManager
 
         for (Representative rep : existingAgents)
         {
-            if (rep.getEmployeeCode() == employeeCode)
+            if (rep.getId() == employeeCode)
             {
                 target = rep;
                 break;
@@ -232,16 +221,16 @@ public class InquiryManager
         return new ArrayList<>(existingAgents);
     }
 
-    public boolean loginAgent(String id){
+    public boolean loginAgent(int id){
         for (Representative rep : existingAgents )
         {
-            if (rep.getId().equals(id))
+            if (rep.getId()==id)
             {
                 boolean alreadyActive = false;
 
                 for (Representative activeRep : activeAgents)
                 {
-                    if (activeRep.getId().equals(id))
+                    if (activeRep.getId()==id)
                     {
                         alreadyActive = true;
                         break;
@@ -260,12 +249,12 @@ public class InquiryManager
         return false;
     }
 
-    public boolean logoutAgent(String id){
+    public boolean logoutAgent(int id){
         Representative target = null;
 
         for (Representative rep : activeAgents)
         {
-            if (rep.getId().equals(id))
+            if (rep.getId()==id)
             {
                 target = rep;
                 break;

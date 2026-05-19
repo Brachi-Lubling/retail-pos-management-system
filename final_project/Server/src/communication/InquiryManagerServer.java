@@ -1,8 +1,7 @@
 package communication;
 
 import repository.InquiryRepository;
-import repository.NextCodeValRepository;
-import repository.RepresentativeCodeRepository;
+
 import repository.RepresentativeRepository;
 import service.InquiryManager;
 
@@ -27,13 +26,13 @@ public class InquiryManagerServer {
 
         InquiryRepository dataRepository = new InquiryRepository(new File("data"));
         InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
-        NextCodeValRepository codeRepo = new NextCodeValRepository();
+//        NextCodeValRepository codeRepo = new NextCodeValRepository();
 
         RepresentativeRepository repRepo = new RepresentativeRepository();
-        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
+//        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
 
         InquiryManager manager =
-                 InquiryManager.getInstance(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
+                 InquiryManager.getInstance(dataRepository,archiveRepository, repRepo);
 
         while (true) {
 
