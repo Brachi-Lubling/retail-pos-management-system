@@ -86,6 +86,7 @@ public class InquiryManager
 
     }
 
+
     public synchronized Inquiry addInquiry(Inquiry inquiry){
         if (inquiry == null)
         {
@@ -320,6 +321,7 @@ public class InquiryManager
 
         currentHandledInquiriesCount.incrementAndGet();
 
+
 //        InquiryTreatmentTask treatmentTask = new InquiryTreatmentTask(inquiryAndRepresentative, this);
 //        treatmentTask.start();
     }
@@ -339,4 +341,21 @@ public class InquiryManager
         return currentHandledInquiriesCount.get();
     }
 
+    public boolean closeInquiry(Inquiry target) {
+
+        target.setStatus(INQUIRY_STATUS.DONE);
+
+        dataRepository.delete(
+                target.getCode(),
+                target.getType()
+        );
+
+        archiveRepository.create(target);
+
+        return true;
+    }
+
+    public int decreaseActiveInquiriesCounter() {
+        return currentHandledInquiriesCount.decrementAndGet();
+    }
 }
