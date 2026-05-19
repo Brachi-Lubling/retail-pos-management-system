@@ -75,6 +75,7 @@ public class InquiryManagerClient
                             "2-get count by month, " +
                             "3-get inquiry status," +
                             "4-cancel inquiry " +
+                            "5-get current handled inquiries count"+
                             "0-exit"
             );
 
@@ -104,7 +105,8 @@ public class InquiryManagerClient
                 case 4:
                     cancelInquiry();
                     break;
-
+                case 5:
+                    getCurrentHandledInquiriesCount();
                 case 0:
 
                     return;
@@ -114,6 +116,10 @@ public class InquiryManagerClient
                     System.out.println("the number is not valid");
             }
         }
+    }
+
+    private void getCurrentHandledInquiriesCount() {
+        createCommunication(InquiryManagerActions.GET_CURRENT_HANDLED_INQUIRIES_COUNT);
     }
 
     private void cancelInquiry()
@@ -142,7 +148,7 @@ public class InquiryManagerClient
 
                 System.out.println("insert agent id");
 
-                String loginId = scanner.nextLine();
+                int loginId = scanner.nextInt();
 
 
                 agentLogin(loginId);
@@ -153,7 +159,7 @@ public class InquiryManagerClient
 
                 System.out.println("insert agent id");
 
-                String logoutId = scanner.nextLine();
+                int logoutId = scanner.nextInt();
 
                 agentLogout(logoutId);
 
@@ -171,7 +177,7 @@ public class InquiryManagerClient
         }
     }
 
-    private void agentLogin(String agentId)
+    private void agentLogin(int agentId)
     {
         createCommunication(
                 InquiryManagerActions.AGENT_LOGIN,
@@ -179,7 +185,7 @@ public class InquiryManagerClient
         );
     }
 
-    private void agentLogout(String agentId)
+    private void agentLogout(int agentId)
     {
         createCommunication(
                 InquiryManagerActions.AGENT_LOGOUT,

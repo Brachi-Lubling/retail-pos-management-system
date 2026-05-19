@@ -15,82 +15,79 @@ public class Main {
         int port = 8888;
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("Select mode:");
-        System.out.println("1 - Server mode (clients)");
-        System.out.println("2 - Admin mode (add/delete representatives)");
-
-        int mode = scanner.nextInt();
-
         InquiryRepository dataRepository = new InquiryRepository(new File("data"));
         InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
-        NextCodeValRepository codeRepo = new NextCodeValRepository();
-
         RepresentativeRepository repRepo = new RepresentativeRepository();
-        RepresentativeCodeRepository repCodeRepo = new RepresentativeCodeRepository();
 
         InquiryManager manager =
-                InquiryManager.getInstance(dataRepository,archiveRepository, codeRepo, repRepo, repCodeRepo);
+                InquiryManager.getInstance(dataRepository, archiveRepository, repRepo);
 
+        boolean isServerRunning = false;
 
-        if (mode == 1) {
+        while (true) {
+            System.out.println("Select mode:");
+            System.out.println("1 - Server mode (clients)");
+            System.out.println("2 - Admin mode (add/delete representatives)");
 
-            new Thread(() -> {
-                try {
-                    ServerSocket serverSocket = new ServerSocket(port);
-                    System.out.println("Server started on port " + port);
+            int mode = scanner.nextInt();
 
-                    while (true) {
-                        Socket clientSocket = serverSocket.accept();
-                        System.out.println("Client connected: " +
-                                clientSocket.getRemoteSocketAddress());
-
-                        HandleClient handler =
-                                new HandleClient(clientSocket, manager);
-                        handler.start();
-                    }
-
-                } catch (Exception e) {
-                    e.printStackTrace();
+            if (mode == 1) {
+                if (isServerRunning) {
+                    continue;
                 }
-            }).start();
-        }
+                isServerRunning = true;
+                new Thread(() -> {
+                    try {
+                        ServerSocket serverSocket = new ServerSocket(port);
+                        System.out.println("Server started on port " + port);
 
+                        while (true) {
+                            Socket clientSocket = serverSocket.accept();
+                            System.out.println("Client connected: " +
+                                    clientSocket.getRemoteSocketAddress());
 
-        else if (mode == 2) {
+                            HandleClient handler =
+                                    new HandleClient(clientSocket, manager);
+                            handler.start();
+                        }
 
-            while (true) {
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            }
 
-                System.out.println("\nChoose action:");
-                System.out.println("1 - Add representative");
-                System.out.println("2 - Delete representative");
+            else if (mode == 2) {
+                boolean inAdminMode = true;
+                while (inAdminMode) {
+                    System.out.println("\nChoose action:");
+                    System.out.println("1 - Add representative");
+                    System.out.println("2 - Delete representative");
+                    System.out.println("3 - Back to Main Menu (Select Mode)");
 
-                int choice = scanner.nextInt();
+                    int choice = scanner.nextInt();
 
-                if (choice == 1) {
+                    if (choice == 1) {
+                        System.out.println("First name:");
+                        String name = scanner.next();
 
-                    System.out.println("First name:");
-                    String name = scanner.next();
+                        System.out.println("ID:");
+                        int id = scanner.nextInt();
 
-                    System.out.println("ID:");
-                    String id = scanner.next();
+                        Representative rep = new Representative(name, id);
+                        manager.addRepresentative(rep);
+                        System.out.println("Representative added");
 
-                    Representative rep = new Representative(name, id);
+                    } else if (choice == 2) {
+                        System.out.println("Representative code:");
+                        int code = scanner.nextInt();
 
-                    manager.addRepresentative(rep);
+                        boolean result = manager.deleteRepresentative(code);
+                        System.out.println(result ? "Deleted successfully" : "Not found");
 
-                    System.out.println("Representative added");
-
-                } else if (choice == 2) {
-
-                    System.out.println("Representative code:");
-                    int code = scanner.nextInt();
-
-                    boolean result =
-                            manager.deleteRepresentative(code);
-
-                    System.out.println(
-                            result ? "Deleted successfully" : "Not found"
-                    );
+                    } else if (choice == 3) {
+                        inAdminMode = false;
+                    }
                 }
             }
         }
