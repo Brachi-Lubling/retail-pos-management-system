@@ -3,7 +3,7 @@ package repository;
 import java.io.*;
 
 public class NextCodeValRepository {
-    private final String  PATH="nextCodeVal";
+    private final String  PATH="data/nextCodeVal";
 
     public synchronized int get() {
         File file = new File(PATH);

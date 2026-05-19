@@ -193,8 +193,6 @@ public class InquiryManagerClient
 
         String id = scanner.nextLine();
 
-//        scanner.nextLine();
-
         createCommunication(
                 InquiryManagerActions.GET_INQUIRY_STATUS,
                 id
