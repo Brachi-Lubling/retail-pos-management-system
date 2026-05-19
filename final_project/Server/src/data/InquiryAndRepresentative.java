@@ -36,4 +36,24 @@ public class InquiryAndRepresentative extends Thread implements Serializable {
         InquiryManager.getInstance().closeInquiry(currentInquiry);
         InquiryManager.getInstance().decreaseActiveInquiriesCounter();
     }
+
+    private void handling() {
+        try {
+            if (currentInquiry instanceof Question)
+                this.setPriority(Thread.MAX_PRIORITY);
+            else
+                this.setPriority(Thread.MIN_PRIORITY);
+
+            if (currentInquiry instanceof Request)
+                Thread.sleep(3000);
+            else
+                Thread.sleep(5000);
+            currentInquiry.handling();
+
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
