@@ -15,6 +15,7 @@ public class InquiryManager
 
     private final InquiryRepository dataRepository;
     private final InquiryRepository archiveRepository;
+    private final NextCodeValRepository nextCodeValRepository;
 
     private final RepresentativeRepository representativeRepository;
 
@@ -26,22 +27,21 @@ public class InquiryManager
 
     private final AtomicInteger nextCodeVal = new AtomicInteger(0);
 
-
     public final AtomicInteger currentHandledInquiriesCount = new AtomicInteger(0);
 
 
     public static InquiryManager getInstance(
             InquiryRepository dataRepository,
             InquiryRepository archiveRepository,
+            NextCodeValRepository nextCodeValRepository,
             RepresentativeRepository repRepo
-
     ) {
         if (instance == null) {
             synchronized (InquiryManager.class) {
                 if (instance == null) {
                     instance = new InquiryManager(
                             dataRepository, archiveRepository,
-                            repRepo
+                            nextCodeValRepository, repRepo
                     );
                 }
             }
@@ -59,23 +59,21 @@ public class InquiryManager
     private InquiryManager(
             InquiryRepository dataRepository,
             InquiryRepository archiveRepository,
+            NextCodeValRepository nextCodeValRepository,
             RepresentativeRepository repRepo
-
     )
     {
         this.dataRepository = dataRepository;
         this.archiveRepository = archiveRepository;
+        this.nextCodeValRepository = nextCodeValRepository;
         this.representativeRepository = repRepo;
 
-
         inquiriesQueue.addAll(dataRepository.readAll());
-
-
+        nextCodeVal.set(nextCodeValRepository.get());  // טעינת הקוד האחרון מהקובץ
 
         existingAgents.addAll(repRepo.readAll());
 
         startMatchingProcess();
-
     }
 
 
@@ -91,6 +89,7 @@ public class InquiryManager
 
         dataRepository.create(inquiry);
 
+        nextCodeValRepository.update(nextCodeVal.get());  // שמירת הקוד המעודכן לקובץ
 
         inquiriesQueue.offer(inquiry);
 
@@ -127,7 +126,7 @@ public class InquiryManager
     }
 
     public int getInquiriesCountByMonth(int month){
-        return dataRepository.countByMonth(month)+archiveRepository.countByMonth(month);
+        return dataRepository.countByMonth(month) + archiveRepository.countByMonth(month);
     }
 
     public synchronized Representative addRepresentative( Representative rep ){
@@ -135,9 +134,6 @@ public class InquiryManager
         {
             return null;
         }
-
-
-
 
         existingAgents.offer(rep);
 
@@ -148,7 +144,6 @@ public class InquiryManager
 
     public synchronized boolean deleteRepresentative( int employeeCode ){
         Representative target = null;
-
 
         for (Representative rep : existingAgents)
         {
@@ -164,14 +159,11 @@ public class InquiryManager
             return false;
         }
 
+        existingAgents.remove(target);
 
-        // הסרה מכל הסוכנים
-        existingAgents .remove(target);
-
-        // אם פעיל - להסיר גם מהפעילים
         activeAgents.remove(target);
 
-        representativeRepository.saveAll(existingAgents );
+        representativeRepository.saveAll(existingAgents);
 
         return true;
     }
@@ -221,15 +213,15 @@ public class InquiryManager
     }
 
     public boolean loginAgent(int id){
-        for (Representative rep : existingAgents )
+        for (Representative rep : existingAgents)
         {
-            if (rep.getId()==id)
+            if (rep.getId() == id)
             {
                 boolean alreadyActive = false;
 
                 for (Representative activeRep : activeAgents)
                 {
-                    if (activeRep.getId()==id)
+                    if (activeRep.getId() == id)
                     {
                         alreadyActive = true;
                         break;
@@ -253,7 +245,7 @@ public class InquiryManager
 
         for (Representative rep : activeAgents)
         {
-            if (rep.getId()==id)
+            if (rep.getId() == id)
             {
                 target = rep;
                 break;
@@ -276,31 +268,30 @@ public class InquiryManager
 
     private void startMatchingProcess() {
         Thread matchingThread = new Thread(() -> {
-        while (true) {
+            while (true) {
 
-            if (!inquiriesQueue.isEmpty() && !activeAgents.isEmpty()) {
+                if (!inquiriesQueue.isEmpty() && !activeAgents.isEmpty()) {
 
-                Inquiry inquiry = inquiriesQueue.poll();
-                Representative representative = activeAgents.poll();
+                    Inquiry inquiry = inquiriesQueue.poll();
+                    Representative representative = activeAgents.poll();
 
-                if (inquiry != null && representative != null) {
-                    assignInquiryToAgent(inquiry, representative);
+                    if (inquiry != null && representative != null) {
+                        assignInquiryToAgent(inquiry, representative);
+                    }
+                }
+
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
             }
-
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-    });
+        });
         matchingThread.setDaemon(true);
         matchingThread.start();
     }
 
-
-    private void assignInquiryToAgent(Inquiry inquiry,Representative representative) {
+    private void assignInquiryToAgent(Inquiry inquiry, Representative representative) {
         System.out.println("Assigning Inquiry " + inquiry.getCode() + " to Agent " + representative.getFirstName());
 
         inquiry.setStatus(INQUIRY_STATUS.IN_PROGRESS);
@@ -310,14 +301,11 @@ public class InquiryManager
         currentHandledInquiriesCount.incrementAndGet();
 
         inquiryAndRepresentative.start();
-
     }
 
-    // פונקציית עזר שחברה שלך תקרא אליה כשה-Thread שלה מסתיים כדי להחזיר את הסוכן לתור
     public void returnAgentToQueue(Representative representative) {
         if (representative != null) {
             activeAgents.add(representative);
-            // הפחתת המונה כי הטיפול בפנייה הסתיים
             currentHandledInquiriesCount.decrementAndGet();
             System.out.println("Rep " + representative.getFirstName() + " returned to queue.");
         }
@@ -336,5 +324,4 @@ public class InquiryManager
 
         return true;
     }
-
 }

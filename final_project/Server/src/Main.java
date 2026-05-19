@@ -18,9 +18,10 @@ public class Main {
         InquiryRepository dataRepository = new InquiryRepository(new File("data"));
         InquiryRepository archiveRepository = new InquiryRepository(new File("archive"));
         RepresentativeRepository repRepo = new RepresentativeRepository();
+        NextCodeValRepository codeRepo = new NextCodeValRepository();
 
         InquiryManager manager =
-                InquiryManager.getInstance(dataRepository, archiveRepository, repRepo);
+                InquiryManager.getInstance(dataRepository, archiveRepository,codeRepo, repRepo);
 
         boolean isServerRunning = false;
 

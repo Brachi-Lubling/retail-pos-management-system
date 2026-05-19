@@ -83,8 +83,7 @@ public class InquiryRepository {
         return file.exists() && file.delete();
     }
 
-    public int countByMonth(int month)
-    {
+    public int countByMonth(int month){
         if (folder == null || !folder.exists())
         {
             return 0;
@@ -93,8 +92,7 @@ public class InquiryRepository {
         return countFilesByMonth(folder, month);
     }
 
-    private int countFilesByMonth(File mainFolder, int month)
-    {
+    private int countFilesByMonth(File mainFolder, int month){
         int count = 0;
 
         File[] subFolders = mainFolder.listFiles();
@@ -117,8 +115,7 @@ public class InquiryRepository {
         return count;
     }
 
-    private int countFilesInFolder(File folder, int month)
-    {
+    private int countFilesInFolder(File folder, int month){
         int count = 0;
 
         File[] files = folder.listFiles();
@@ -145,11 +142,12 @@ public class InquiryRepository {
 
         return count;
     }
-    private boolean isSameMonth(LocalDate date, int month)
-    {
+
+    private boolean isSameMonth(LocalDate date, int month){
         return date != null &&
                 date.getMonthValue() == month;
     }
+
     private LocalDate readDate(File file) {
         try (ObjectInputStream in =
                      new ObjectInputStream(new FileInputStream(file))) {
