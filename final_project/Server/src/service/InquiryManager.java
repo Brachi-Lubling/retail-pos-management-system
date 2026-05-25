@@ -21,9 +21,9 @@ public class InquiryManager
 
     private final Queue<Inquiry> inquiriesQueue = new ConcurrentLinkedQueue<>();
 
-    private final Queue<Representative> existingAgents = new ConcurrentLinkedQueue<>();
+    private final Queue<Representative> existingRepresentatives = new ConcurrentLinkedQueue<>();
 
-    private final Queue<Representative> activeAgents = new ConcurrentLinkedQueue<>();
+    private final Queue<Representative> activeRepresentatives = new ConcurrentLinkedQueue<>();
 
     private final AtomicInteger nextCodeVal = new AtomicInteger(0);
 
@@ -69,9 +69,9 @@ public class InquiryManager
         this.representativeRepository = repRepo;
 
         inquiriesQueue.addAll(dataRepository.readAll());
-        nextCodeVal.set(nextCodeValRepository.get());  // טעינת הקוד האחרון מהקובץ
+        nextCodeVal.set(nextCodeValRepository.get());
 
-        existingAgents.addAll(repRepo.readAll());
+        existingRepresentatives.addAll(repRepo.readAll());
 
         startMatchingProcess();
     }
@@ -89,7 +89,7 @@ public class InquiryManager
 
         dataRepository.create(inquiry);
 
-        nextCodeValRepository.update(nextCodeVal.get());  // שמירת הקוד המעודכן לקובץ
+        nextCodeValRepository.update(nextCodeVal.get());
 
         inquiriesQueue.offer(inquiry);
 
@@ -135,9 +135,9 @@ public class InquiryManager
             return null;
         }
 
-        existingAgents.offer(rep);
+        existingRepresentatives.offer(rep);
 
-        representativeRepository.saveAll(existingAgents);
+        representativeRepository.saveAll(existingRepresentatives);
 
         return rep;
     }
@@ -145,7 +145,7 @@ public class InquiryManager
     public synchronized boolean deleteRepresentative( int employeeCode ){
         Representative target = null;
 
-        for (Representative rep : existingAgents)
+        for (Representative rep : existingRepresentatives)
         {
             if (rep.getId() == employeeCode)
             {
@@ -159,11 +159,11 @@ public class InquiryManager
             return false;
         }
 
-        existingAgents.remove(target);
+        existingRepresentatives.remove(target);
 
-        activeAgents.remove(target);
+        activeRepresentatives.remove(target);
 
-        representativeRepository.saveAll(existingAgents);
+        representativeRepository.saveAll(existingRepresentatives);
 
         return true;
     }
@@ -209,17 +209,17 @@ public class InquiryManager
     }
 
     public List<Representative> getAllRepresentatives() {
-        return new ArrayList<>(existingAgents);
+        return new ArrayList<>(existingRepresentatives);
     }
 
-    public boolean loginAgent(int id){
-        for (Representative rep : existingAgents)
+    public boolean loginRepresentative(int id){
+        for (Representative rep : existingRepresentatives)
         {
             if (rep.getId() == id)
             {
                 boolean alreadyActive = false;
 
-                for (Representative activeRep : activeAgents)
+                for (Representative activeRep : activeRepresentatives)
                 {
                     if (activeRep.getId() == id)
                     {
@@ -230,7 +230,7 @@ public class InquiryManager
 
                 if (!alreadyActive)
                 {
-                    activeAgents.offer(rep);
+                    activeRepresentatives.offer(rep);
                 }
 
                 return true;
@@ -240,10 +240,10 @@ public class InquiryManager
         return false;
     }
 
-    public boolean logoutAgent(int id){
+    public boolean logoutRepresentative(int id){
         Representative target = null;
 
-        for (Representative rep : activeAgents)
+        for (Representative rep : activeRepresentatives)
         {
             if (rep.getId() == id)
             {
@@ -257,26 +257,26 @@ public class InquiryManager
             return false;
         }
 
-        activeAgents.remove(target);
+        activeRepresentatives.remove(target);
 
         return true;
     }
 
-    public List<Representative> getActiveAgents(){
-        return new ArrayList<>(activeAgents);
+    public List<Representative> getActiveRepresentatives(){
+        return new ArrayList<>(activeRepresentatives);
     }
 
     private void startMatchingProcess() {
         Thread matchingThread = new Thread(() -> {
             while (true) {
 
-                if (!inquiriesQueue.isEmpty() && !activeAgents.isEmpty()) {
+                if (!inquiriesQueue.isEmpty() && !activeRepresentatives.isEmpty()) {
 
                     Inquiry inquiry = inquiriesQueue.poll();
-                    Representative representative = activeAgents.poll();
+                    Representative representative = activeRepresentatives.poll();
 
                     if (inquiry != null && representative != null) {
-                        assignInquiryToAgent(inquiry, representative);
+                        assignInquiryToRepresentative(inquiry, representative);
                     }
                 }
 
@@ -291,8 +291,8 @@ public class InquiryManager
         matchingThread.start();
     }
 
-    private void assignInquiryToAgent(Inquiry inquiry, Representative representative) {
-        System.out.println("Assigning Inquiry " + inquiry.getCode() + " to Agent " + representative.getFirstName());
+    private void assignInquiryToRepresentative(Inquiry inquiry, Representative representative) {
+        System.out.println("Assigning Inquiry " + inquiry.getCode() + " to Representative " + representative.getFirstName());
 
         inquiry.setStatus(INQUIRY_STATUS.IN_PROGRESS);
 
@@ -303,9 +303,9 @@ public class InquiryManager
         inquiryAndRepresentative.start();
     }
 
-    public void returnAgentToQueue(Representative representative) {
+    public void returnRepresentativeToQueue(Representative representative) {
         if (representative != null) {
-            activeAgents.add(representative);
+            activeRepresentatives.add(representative);
             currentHandledInquiriesCount.decrementAndGet();
             System.out.println("Rep " + representative.getFirstName() + " returned to queue.");
         }

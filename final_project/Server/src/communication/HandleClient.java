@@ -106,7 +106,7 @@ public class HandleClient extends Thread
                 return inquiryManager.getInquiriesCountByMonth(month);
             }
 
-            case AGENT_LOGIN:
+            case Representative_LOGIN:
             {
                 Object[] data = (Object[]) request.getData();
 
@@ -115,15 +115,15 @@ public class HandleClient extends Thread
 
                 int id = (int) data[0];
 
-                boolean success = inquiryManager.loginAgent(id);
+                boolean success = inquiryManager.loginRepresentative(id);
 
                 if (success)
-                    return new Response(true, ResponseStatus.SUCCESS, "agent logged in");
+                    return new Response(true, ResponseStatus.SUCCESS, "Representative logged in");
                 else
-                    return new Response(null, ResponseStatus.FAIL, "agent id not found");
+                    return new Response(null, ResponseStatus.FAIL, "Representative id not found");
             }
 
-            case AGENT_LOGOUT:
+            case Representative_LOGOUT:
             {
                 Object[] data = (Object[]) request.getData();
 
@@ -132,12 +132,12 @@ public class HandleClient extends Thread
 
                 int id =(int) data[0];
 
-                boolean success = inquiryManager.logoutAgent(id);
+                boolean success = inquiryManager.logoutRepresentative(id);
 
                 if (success)
-                    return new Response(true, ResponseStatus.SUCCESS, "agent logged out");
+                    return new Response(true, ResponseStatus.SUCCESS, "Representative logged out");
                 else
-                    return new Response(null, ResponseStatus.FAIL, "agent id not found");
+                    return new Response(null, ResponseStatus.FAIL, "Representative id not found");
             }
 
             case CANCEL_INQUIRY:
