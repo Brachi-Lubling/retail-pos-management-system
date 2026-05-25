@@ -8,7 +8,7 @@ public enum InquiryManagerActions implements Serializable {
     GET_INQUIRIES_COUNT_BY_MONTH,
     GET_INQUIRY_STATUS,
     GET_CURRENT_HANDLED_INQUIRIES_COUNT,
-    AGENT_LOGIN,
-    AGENT_LOGOUT,
+    Representative_LOGIN,
+    Representative_LOGOUT,
     CANCEL_INQUIRY
 }
