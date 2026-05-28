@@ -51,7 +51,6 @@ out/
 # Data & Archive folders
 Server/data/
 Server/archive/
-data/
 
 # Binary data files
 *.bin
